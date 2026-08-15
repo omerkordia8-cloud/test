@@ -763,12 +763,217 @@ function buildPlayerCar(carDef,colorHex){
 }
 
 /* ══════════════════════════════════════
+   AUDIO ENGINE (Web Audio API — Offline)
+══════════════════════════════════════ */
+let audioCtx = null;
+const audioNodes = {};
+let soundEnabled = true;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// Generate engine sound via oscillator + noise
+function createEngineSound() {
+  const ctx = getAudioCtx();
+  const osc = ctx.createOscillator();
+  const oscGain = ctx.createGain();
+  const dist = ctx.createWaveShaper();
+  const masterGain = ctx.createGain();
+
+  // Distortion curve for engine growl
+  const curve = new Float32Array(256);
+  for (let i = 0; i < 256; i++) {
+    const x = (i * 2) / 256 - 1;
+    curve[i] = (Math.PI + 300) * x / (Math.PI + 300 * Math.abs(x));
+  }
+  dist.curve = curve;
+
+  osc.type = 'sawtooth';
+  osc.frequency.value = 80;
+  oscGain.gain.value = 0.3;
+  masterGain.gain.value = 0;
+
+  osc.connect(oscGain);
+  oscGain.connect(dist);
+  dist.connect(masterGain);
+  masterGain.connect(ctx.destination);
+  osc.start();
+
+  audioNodes.engine = { osc, oscGain, masterGain, ctx };
+}
+
+function updateEngineSound(speed, maxSpeed, drifting) {
+  if (!soundEnabled || !audioNodes.engine) return;
+  const { osc, masterGain } = audioNodes.engine;
+  const sn = Math.abs(speed) / maxSpeed;
+  // Pitch: 80Hz idle → 220Hz at max
+  const targetFreq = 80 + sn * 180 + (drifting ? 40 : 0);
+  osc.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.05);
+  // Volume: quiet at idle, loud when driving
+  const targetVol = speed === 0 ? 0.12 : 0.18 + sn * 0.22;
+  masterGain.gain.setTargetAtTime(targetVol, audioCtx.currentTime, 0.08);
+}
+
+// Short burst sound generator
+function playBurst(frequency, duration, type = 'sine', volume = 0.3, attack = 0.01) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = frequency;
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + attack);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+  } catch(e) {}
+}
+
+// Tire squeal — continuous noise when drifting
+function createTireSound() {
+  const ctx = getAudioCtx();
+  const bufSize = ctx.sampleRate * 1;
+  const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  src.buffer = buf; src.loop = true;
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass'; filter.frequency.value = 1200; filter.Q.value = 8;
+  const gain = ctx.createGain(); gain.gain.value = 0;
+  src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+  src.start();
+  audioNodes.tire = { gain, filter };
+}
+
+function updateTireSound(drifting, driftIntensity, speed) {
+  if (!soundEnabled || !audioNodes.tire) return;
+  const { gain, filter } = audioNodes.tire;
+  const targetVol = drifting ? driftIntensity * 0.35 : 0;
+  gain.gain.setTargetAtTime(targetVol, audioCtx.currentTime, 0.05);
+  filter.frequency.setTargetAtTime(800 + driftIntensity * 800, audioCtx.currentTime, 0.05);
+}
+
+function playCollisionSound(intensity = 1) {
+  if (!soundEnabled) return;
+  playBurst(60 + Math.random() * 40, 0.35, 'square', Math.min(0.5, intensity * 0.4), 0.002);
+  playBurst(120 + Math.random() * 80, 0.2, 'sawtooth', Math.min(0.3, intensity * 0.25), 0.001);
+}
+
+function playCheckpointSound() {
+  if (!soundEnabled) return;
+  playBurst(880, 0.15, 'sine', 0.35, 0.005);
+  setTimeout(() => playBurst(1100, 0.15, 'sine', 0.3, 0.005), 120);
+  setTimeout(() => playBurst(1320, 0.25, 'sine', 0.28, 0.005), 240);
+}
+
+function playRevSound() {
+  if (!soundEnabled) return;
+  playBurst(200 + Math.abs(cs.speed) * 4, 0.08, 'sawtooth', 0.15, 0.01);
+}
+
+function initAudio() {
+  try {
+    createEngineSound();
+    createTireSound();
+  } catch(e) { console.warn('Audio init failed:', e); }
+}
+
+// Start audio on first user gesture
+document.addEventListener('keydown', () => {
+  if (!audioCtx) initAudio();
+}, { once: true });
+document.addEventListener('click', () => {
+  if (!audioCtx) initAudio();
+}, { once: true });
+
+/* ══════════════════════════════════════
+   TIRE MARKS SYSTEM
+══════════════════════════════════════ */
+const tireMarkGeo = new THREE.BufferGeometry();
+const MARK_MAX = 3000; // max vertices
+const markPositions = new Float32Array(MARK_MAX * 3);
+const markAlphas = new Float32Array(MARK_MAX);
+let markIdx = 0;
+let markCount = 0;
+
+const tireMarkMat = new THREE.LineBasicMaterial({
+  color: 0x111111,
+  transparent: true,
+  opacity: 0.7,
+  depthWrite: false,
+});
+
+// We'll use a Points system instead for better performance
+const markGeoBuf = new THREE.BufferGeometry();
+const markPos = new Float32Array(8000 * 3);
+const markPosAttr = new THREE.BufferAttribute(markPos, 3);
+markPosAttr.setUsage(THREE.DynamicDrawUsage);
+markGeoBuf.setAttribute('position', markPosAttr);
+const tireMarkMesh = new THREE.Points(markGeoBuf,
+  new THREE.PointsMaterial({ color: 0x0a0a0a, size: 0.35, transparent: true, opacity: 0.75, depthWrite: false })
+);
+tireMarkMesh.renderOrder = 1;
+scene.add(tireMarkMesh);
+
+let markHead = 0;
+const MARK_TOTAL = 8000;
+
+function addTireMark(x, z) {
+  // Add 2 marks (left/right wheels)
+  const offL = new THREE.Vector3(Math.cos(cs.heading) * 0.9, 0.02, -Math.sin(cs.heading) * 0.9);
+  const offR = new THREE.Vector3(-Math.cos(cs.heading) * 0.9, 0.02, Math.sin(cs.heading) * 0.9);
+  [[x + offL.x, offL.y, z + offL.z], [x + offR.x, offR.y, z + offR.z]].forEach(([px, py, pz]) => {
+    const i = (markHead % MARK_TOTAL) * 3;
+    markPos[i] = px; markPos[i+1] = py; markPos[i+2] = pz;
+    markHead++;
+  });
+  markPosAttr.needsUpdate = true;
+  markGeoBuf.setDrawRange(0, Math.min(markHead, MARK_TOTAL));
+}
+
+/* ══════════════════════════════════════
+   CAMERA SHAKE
+══════════════════════════════════════ */
+let camShake = { x: 0, y: 0, intensity: 0 };
+
+function triggerShake(intensity) {
+  camShake.intensity = Math.max(camShake.intensity, intensity);
+}
+
+function updateCamShake(dt) {
+  if (camShake.intensity < 0.001) { camShake.intensity = 0; return; }
+  camShake.x = (Math.random() - 0.5) * camShake.intensity;
+  camShake.y = (Math.random() - 0.5) * camShake.intensity;
+  camShake.intensity *= Math.pow(0.85, dt * 60);
+}
+
+/* ══════════════════════════════════════
    PHYSICS STATE
 ══════════════════════════════════════ */
-const cs={speed:0,heading:0,steer:0,drift:0,hb:false,pos:new THREE.Vector3(0,0,10)};
-const PH={maxSpeed:28,accel:12,brake:18,steerMax:.045,steerRet:.08,fric:.94,hbFric:.88,revMax:8};
+const cs = {
+  speed: 0, heading: 0, steer: 0, drift: 0,
+  hb: false, pos: new THREE.Vector3(0, 0, 10),
+  prevSpeed: 0, // for collision detection
+  lateralVel: 0, // true lateral velocity for drift
+  angularVel: 0, // yaw rate
+};
+const PH = { maxSpeed:28, accel:12, brake:18, steerMax:.045, steerRet:.08, fric:.94, hbFric:.88, revMax:8 };
 
-function applyCarPhysics(carDef){Object.assign(PH,{maxSpeed:carDef.phys.maxSpeed,accel:carDef.phys.accel,brake:carDef.phys.brake,steerMax:carDef.phys.steerMax,steerRet:carDef.phys.steerRet,fric:carDef.phys.fric,hbFric:carDef.phys.hbFric});}
+function applyCarPhysics(carDef){
+  Object.assign(PH,{
+    maxSpeed:carDef.phys.maxSpeed, accel:carDef.phys.accel,
+    brake:carDef.phys.brake, steerMax:carDef.phys.steerMax,
+    steerRet:carDef.phys.steerRet, fric:carDef.phys.fric, hbFric:carDef.phys.hbFric
+  });
+}
 
 /* ══════════════════════════════════════
    COLLISION
@@ -792,96 +997,246 @@ window.addEventListener('keydown',e=>{
 });
 window.addEventListener('keyup',e=>{keys[e.code]=false;});
 function resetCar(){
-  cs.speed=0;cs.heading=0;cs.steer=0;cs.drift=0;
-  cs.pos.set(0,0,10);car.position.copy(cs.pos);car.rotation.y=0;
+  cs.speed=0; cs.heading=0; cs.steer=0; cs.drift=0;
+  cs.lateralVel=0; cs.angularVel=0; cs.prevSpeed=0;
+  cs.pos.set(0,0,10);
+  car.position.copy(cs.pos); car.rotation.y=0;
+  car.rotation.z=0; car.rotation.x=0;
 }
 
 /* ══════════════════════════════════════
    PHYSICS UPDATE
 ══════════════════════════════════════ */
-let driftAngle=0,isDrifting=false;
+let driftAngle = 0, isDrifting = false;
 
-function updatePhysics(dt){
-  if(blockInput || isPaused)return;
-  const acc=keys['KeyW']?1:0,brk=keys['KeyS']?1:0;
-  const sl=keys['KeyA']?1:0,sr=keys['KeyD']?1:0;
-  cs.hb=!!keys['Space'];
+function updatePhysics(dt) {
+  if (blockInput || isPaused) return;
 
-  if(acc){cs.speed=cs.speed>=0?cs.speed+PH.accel*dt:cs.speed+PH.brake*dt;}
-  else if(brk){cs.speed=cs.speed>0?cs.speed-PH.brake*dt:cs.speed-PH.accel*.6*dt;}
-  cs.speed=Math.max(-PH.revMax,Math.min(PH.maxSpeed,cs.speed));
+  const acc  = keys['KeyW'] ? 1 : 0;
+  const brk  = keys['KeyS'] ? 1 : 0;
+  const sl   = keys['KeyA'] ? 1 : 0;
+  const sr   = keys['KeyD'] ? 1 : 0;
+  cs.hb = !!keys['Space'];
+  cs.prevSpeed = cs.speed;
 
-  const fr=cs.hb?PH.hbFric:PH.fric;
-  if(!acc&&!brk){cs.speed*=Math.pow(fr,dt*60);if(Math.abs(cs.speed)<.05)cs.speed=0;}
-
-  const sn=Math.abs(cs.speed)/PH.maxSpeed;
-  const eSteer=PH.steerMax*(sl-sr)*(1-sn*.4);
-  if(sl||sr)cs.steer+=(eSteer-cs.steer)*.18;
-  else cs.steer*=(1-PH.steerRet);
-
-  const dTrig=cs.hb&&sn>.2;
-  const dHigh=sn>.7&&Math.abs(cs.steer)>PH.steerMax*.5;
-  if(dTrig||dHigh)cs.drift=Math.min(1,cs.drift+dt*3);
-  else cs.drift=Math.max(0,cs.drift-dt*2.5);
-  isDrifting=cs.drift>.3;
-
-  if(Math.abs(cs.speed)>.1){
-    const dir=cs.speed>0?1:-1;
-    cs.heading+=(cs.steer*dir*(1-cs.drift*.5))*Math.abs(cs.speed)*.9;
+  // ── Acceleration / Brake ──
+  if (acc) {
+    cs.speed = cs.speed >= 0
+      ? cs.speed + PH.accel * dt
+      : cs.speed + PH.brake * dt;
+  } else if (brk) {
+    cs.speed = cs.speed > 0
+      ? cs.speed - PH.brake * dt
+      : cs.speed - PH.accel * 0.6 * dt;
   }
-  driftAngle=cs.drift*cs.steer*35;
+  cs.speed = Math.max(-PH.revMax, Math.min(PH.maxSpeed, cs.speed));
 
-  const mv=new THREE.Vector3(Math.sin(cs.heading)*cs.speed*dt,0,Math.cos(cs.heading)*cs.speed*dt);
-  const lat=new THREE.Vector3(Math.cos(cs.heading)*cs.drift*cs.steer*cs.speed*dt*8,0,-Math.sin(cs.heading)*cs.drift*cs.steer*cs.speed*dt*8);
-  const np=cs.pos.clone().add(mv).add(lat);
-  if(!hasCollision(np))cs.pos.copy(np);
-  else cs.speed*=-.3;
+  // ── Friction ──
+  const fr = cs.hb ? PH.hbFric : PH.fric;
+  if (!acc && !brk) {
+    cs.speed *= Math.pow(fr, dt * 60);
+    if (Math.abs(cs.speed) < 0.05) cs.speed = 0;
+  }
 
-  car.position.copy(cs.pos);car.position.y=0;car.rotation.y=cs.heading;
+  // ── Steering — speed-sensitive ──
+  const sn = Math.abs(cs.speed) / PH.maxSpeed;
+  const steerSens = PH.steerMax * (1 - sn * 0.35);
+  const eSteer = steerSens * (sl - sr);
+  if (sl || sr) cs.steer += (eSteer - cs.steer) * 0.2;
+  else cs.steer *= (1 - PH.steerRet);
 
-  const spin=cs.speed*dt*2.5;
-  wheelMeshes.forEach(w=>{
-    w.g.rotation.x=(w.g.rotation.x||0)+spin;
-    if(w.lbl==='FL'||w.lbl==='FR')w.g.rotation.y=-cs.steer*8;
+  // ── Drift physics ──
+  // Lateral velocity builds during handbrake / high-speed turns
+  const driftTrig = cs.hb && sn > 0.15;
+  const highSpeedDrift = sn > 0.65 && Math.abs(cs.steer) > PH.steerMax * 0.45;
+
+  if (driftTrig || highSpeedDrift) {
+    cs.drift = Math.min(1, cs.drift + dt * (cs.hb ? 3.5 : 2.2));
+  } else {
+    cs.drift = Math.max(0, cs.drift - dt * (cs.hb ? 1.8 : 3.0));
+  }
+
+  // Lateral velocity — car slides sideways during drift
+  const targetLat = cs.drift * cs.steer * Math.abs(cs.speed) * 0.55;
+  cs.lateralVel += (targetLat - cs.lateralVel) * Math.min(1, dt * 6);
+  if (!driftTrig && !highSpeedDrift) cs.lateralVel *= Math.pow(0.88, dt * 60);
+
+  isDrifting = cs.drift > 0.25 && Math.abs(cs.lateralVel) > 0.5;
+  driftAngle = cs.drift * cs.steer * 38;
+
+  // ── Yaw (heading) ──
+  if (Math.abs(cs.speed) > 0.1) {
+    const dir = cs.speed > 0 ? 1 : -1;
+    const yawRate = cs.steer * dir * (1 - cs.drift * 0.45);
+    cs.angularVel += (yawRate * Math.abs(cs.speed) * 0.9 - cs.angularVel) * Math.min(1, dt * 8);
+    cs.heading += cs.angularVel * dt * 60;
+  } else {
+    cs.angularVel *= 0.9;
+  }
+
+  // ── Movement ──
+  const fwdX = Math.sin(cs.heading), fwdZ = Math.cos(cs.heading);
+  const latX = Math.cos(cs.heading), latZ = -Math.sin(cs.heading);
+
+  const nx = cs.pos.x + fwdX * cs.speed * dt + latX * cs.lateralVel * dt;
+  const nz = cs.pos.z + fwdZ * cs.speed * dt + latZ * cs.lateralVel * dt;
+  const np = new THREE.Vector3(nx, 0, nz);
+
+  if (!hasCollision(np)) {
+    cs.pos.copy(np);
+  } else {
+    // Collision — bounce + shake + sound
+    const impactSpeed = Math.abs(cs.speed);
+    cs.speed *= -0.28;
+    cs.lateralVel *= -0.2;
+    if (impactSpeed > 3) {
+      triggerShake(impactSpeed * 0.08);
+      playCollisionSound(impactSpeed / PH.maxSpeed);
+    }
+  }
+
+  // Apply to mesh
+  car.position.copy(cs.pos);
+  car.position.y = 0;
+  car.rotation.y = cs.heading;
+
+  // ── Wheel animation ──
+  const spin = cs.speed * dt * 2.8;
+  wheelMeshes.forEach(w => {
+    w.g.rotation.x = (w.g.rotation.x || 0) + spin;
+    if (w.lbl === 'FL' || w.lbl === 'FR')
+      w.g.rotation.y = -cs.steer * 9;
   });
 
-  if(isDrifting&&Math.random()<.6){
-    const rp=new THREE.Vector3(cs.pos.x-Math.sin(cs.heading)*1.4,0,cs.pos.z-Math.cos(cs.heading)*1.4);
-    spawnSmoke(rp);
+  // ── Body roll ── (visual lean during turns)
+  const rollAngle = -cs.steer * sn * 0.06;
+  const pitchAngle = (cs.speed > cs.prevSpeed ? -0.025 : cs.speed < cs.prevSpeed ? 0.018 : 0);
+  car.rotation.z += (rollAngle - car.rotation.z) * 0.12;
+  car.rotation.x += (pitchAngle - car.rotation.x) * 0.08;
+
+  // ── Tire marks ──
+  if (isDrifting && Math.abs(cs.speed) > 2) {
+    addTireMark(
+      cs.pos.x - Math.sin(cs.heading) * 1.5,
+      cs.pos.z - Math.cos(cs.heading) * 1.5
+    );
   }
+
+  // ── Smoke ──
+  if (isDrifting && Math.random() < 0.7) {
+    const rp = new THREE.Vector3(
+      cs.pos.x - Math.sin(cs.heading) * 1.6,
+      0,
+      cs.pos.z - Math.cos(cs.heading) * 1.6
+    );
+    spawnSmoke(rp, cs.drift);
+  }
+
+  // ── Audio ──
+  updateEngineSound(cs.speed, PH.maxSpeed, isDrifting);
+  updateTireSound(isDrifting, cs.drift, cs.speed);
+
+  // ── High speed camera shake ──
+  if (sn > 0.85) triggerShake(sn * 0.025);
 }
 
 /* ══════════════════════════════════════
-   CAMERA
+   CAMERA — smooth follow with shake & FOV
 ══════════════════════════════════════ */
-const camTgt=new THREE.Vector3(),camOff=new THREE.Vector3();
-function updateCamera(){
-  const sn=Math.abs(cs.speed)/PH.maxSpeed;
-  const dist=11+sn*6,ht=4.5+sn*1.5;
-  camOff.set(-Math.sin(cs.heading)*dist,ht,-Math.cos(cs.heading)*dist);
+const camTgt = new THREE.Vector3();
+const camOff = new THREE.Vector3();
+const camLookAt = new THREE.Vector3();
+let camLag = new THREE.Vector3(); // camera lag behind car
+
+function updateCamera() {
+  const sn = Math.abs(cs.speed) / PH.maxSpeed;
+  const dist = 10 + sn * 7;
+  const ht   = 4 + sn * 1.8;
+
+  // Camera offset — slightly lag behind heading for feel
+  const laggedHeading = cs.heading - cs.angularVel * 0.15;
+  camOff.set(
+    -Math.sin(laggedHeading) * dist,
+    ht,
+    -Math.cos(laggedHeading) * dist
+  );
+
   camTgt.copy(cs.pos).add(camOff);
-  camera.position.lerp(camTgt,.08);
-  camera.lookAt(cs.pos.x+Math.sin(cs.heading)*4,cs.pos.y+1.2,cs.pos.z+Math.cos(cs.heading)*4);
+
+  // Smooth follow — faster at high speed
+  const lerpSpeed = 0.07 + sn * 0.04;
+  camera.position.lerp(camTgt, lerpSpeed);
+
+  // Look ahead
+  camLookAt.set(
+    cs.pos.x + Math.sin(cs.heading) * (4 + sn * 3),
+    cs.pos.y + 1.3,
+    cs.pos.z + Math.cos(cs.heading) * (4 + sn * 3)
+  );
+  camera.lookAt(camLookAt);
+
+  // Camera shake
+  updateCamShake(1/60);
+  if (camShake.intensity > 0) {
+    camera.position.x += camShake.x;
+    camera.position.y += Math.abs(camShake.y);
+  }
+
+  // Dynamic FOV — wider at high speed
+  const targetFov = 62 + sn * 14;
+  camera.fov += (targetFov - camera.fov) * 0.06;
+  camera.updateProjectionMatrix();
 }
 
 /* ══════════════════════════════════════
-   PARTICLES
+   PARTICLES — smoke & dust
 ══════════════════════════════════════ */
-const smokes=[],smokePool=[];
-function spawnSmoke(pos){
+const smokes = [], smokePool = [];
+
+function spawnSmoke(pos, intensity = 0.5) {
   let m;
-  if(smokePool.length)m=smokePool.pop();
-  else{m=new THREE.Mesh(new THREE.SphereGeometry(.18,5,5),new THREE.MeshBasicMaterial({color:0xcccccc,transparent:true,opacity:.6,depthWrite:false}));scene.add(m);}
-  m.position.set(pos.x+(Math.random()-.5)*1.5,.15,pos.z+(Math.random()-.5)*1.5);
-  m.material.opacity=.55;m.scale.setScalar(1);m.visible=true;
-  smokes.push({m,life:1,vx:(Math.random()-.5)*.04,vz:(Math.random()-.5)*.04});
+  if (smokePool.length) m = smokePool.pop();
+  else {
+    m = new THREE.Mesh(
+      new THREE.SphereGeometry(0.2, 6, 6),
+      new THREE.MeshBasicMaterial({ color: 0xbbbbbb, transparent: true, opacity: 0.6, depthWrite: false })
+    );
+    scene.add(m);
+  }
+  const spread = 0.8 + intensity * 1.2;
+  m.position.set(
+    pos.x + (Math.random() - 0.5) * spread,
+    0.12,
+    pos.z + (Math.random() - 0.5) * spread
+  );
+  m.scale.setScalar(0.5 + intensity * 0.5);
+  m.material.opacity = 0.45 + intensity * 0.2;
+  m.material.color.setHex(isDrifting ? 0xaaaaaa : 0xddccaa);
+  m.visible = true;
+  smokes.push({
+    m, life: 1.0,
+    vx: (Math.random() - 0.5) * 0.06,
+    vz: (Math.random() - 0.5) * 0.06,
+    vy: 0.012 + Math.random() * 0.015,
+    initOpacity: m.material.opacity,
+  });
 }
-function updateSmokes(dt){
-  for(let i=smokes.length-1;i>=0;i--){
-    const s=smokes[i];s.life-=dt*1.4;
-    s.m.position.x+=s.vx;s.m.position.z+=s.vz;s.m.position.y+=.015;
-    s.m.scale.setScalar(1+(1-s.life)*2);s.m.material.opacity=s.life*.55;
-    if(s.life<=0){s.m.visible=false;smokePool.push(s.m);smokes.splice(i,1);}
+
+function updateSmokes(dt) {
+  for (let i = smokes.length - 1; i >= 0; i--) {
+    const s = smokes[i];
+    s.life -= dt * 1.2;
+    s.m.position.x += s.vx;
+    s.m.position.z += s.vz;
+    s.m.position.y += s.vy;
+    s.vy *= 0.98;
+    s.m.scale.setScalar(s.m.scale.x + dt * 1.8);
+    s.m.material.opacity = s.life * s.initOpacity;
+    if (s.life <= 0) {
+      s.m.visible = false;
+      smokePool.push(s.m);
+      smokes.splice(i, 1);
+    }
   }
 }
 
@@ -1025,6 +1380,7 @@ function updateCPDots(){
 function cpFlash(){
   const el=document.getElementById('cp-flash');el.style.opacity='1';
   setTimeout(()=>el.style.opacity='0',200);
+  playCheckpointSound();
 }
 
 function startCountdown(cb){
@@ -1062,7 +1418,11 @@ function finishRace(won){
   rt.textContent=won?'فزت!':'خسرت!';rt.className=won?'win':'lose';
   document.getElementById('res-time').textContent=fmtTime(rs.t);
   const rr=document.getElementById('res-reward');
-  if(won){rs.money+=WIN_MONEY;rr.textContent=`+${WIN_MONEY} $`;rr.style.color='#00ff88';}
+  if(won){
+    rs.money+=WIN_MONEY;rr.textContent=`+${WIN_MONEY} $`;rr.style.color='#00ff88';
+    // Victory fanfare
+    [523,659,784,1047].forEach((f,i) => setTimeout(()=>playBurst(f,0.3,'sine',0.3,0.01), i*120));
+  }
   else{rr.textContent='حاول مجدداً';rr.style.color='#ff8800';}
   updateMoneyDisplay();
   ri.classList.add('on');
@@ -1675,6 +2035,10 @@ function init(){
   buildPlayerCar(activeCar,activeColor);
   applyCarPhysics(activeCar);
   initGarageRenderer();
+  // reset extended physics state
+  cs.prevSpeed = 0;
+  cs.lateralVel = 0;
+  cs.angularVel = 0;
   // hide loading
   setTimeout(()=>{
     const ld=document.getElementById('loading');
