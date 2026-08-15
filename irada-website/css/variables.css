@@ -1,0 +1,50 @@
+/* ===================================================
+   إرادة - متغيرات التصميم العامة
+   يمكن استيراد هذا الملف في أي صفحة
+=================================================== */
+
+:root {
+  /* ---- الألوان الأساسية ---- */
+  --primary:        #1a6b3c;   /* أخضر داكن */
+  --primary-light:  #2e9e5b;   /* أخضر فاتح */
+  --primary-xlight: #e8f5ee;   /* أخضر خافت للخلفيات */
+  --accent:         #f5a623;   /* برتقالي ذهبي */
+  --accent-dark:    #d4891a;
+  --accent-light:   #fff3dc;
+
+  /* ---- الخلفيات ---- */
+  --bg-white:       #ffffff;
+  --bg-light:       #f8faf9;
+  --bg-section:     #f0f7f3;
+  --bg-dark:        #0d3d22;
+
+  /* ---- النصوص ---- */
+  --text-dark:      #1a2e24;
+  --text-body:      #3d5247;
+  --text-muted:     #7a9485;
+  --text-light:     #ffffff;
+
+  /* ---- الحدود ---- */
+  --border:         #d4e6db;
+  --border-light:   #ebf4ef;
+
+  /* ---- الظلال ---- */
+  --shadow-sm:  0 2px 8px rgba(26, 107, 60, 0.08);
+  --shadow-md:  0 6px 24px rgba(26, 107, 60, 0.12);
+  --shadow-lg:  0 16px 48px rgba(26, 107, 60, 0.16);
+
+  /* ---- المقاسات ---- */
+  --container:    1200px;
+  --header-h:     80px;
+  --radius-sm:    8px;
+  --radius-md:    16px;
+  --radius-lg:    24px;
+  --radius-full:  9999px;
+
+  /* ---- الخطوط ---- */
+  --font-body:    'Tajawal', 'Cairo', sans-serif;
+  --font-heading: 'Cairo', 'Tajawal', sans-serif;
+
+  /* ---- التحولات ---- */
+  --transition: 0.3s ease;
+}
