@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>المعالجات — TechZone</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/base.css"/>
+  <link rel="stylesheet" href="../css/products.css"/>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script></head>
+<body>
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="../index.html" class="logo"><div class="logo-icon">⚡</div>Tech<span>Zone</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html" class="nav-link">🏠 الرئيسية</a></li>
+      <li><a href="processors.html" class="nav-link active">🔵 المعالجات</a></li>
+      <li><a href="gpus.html" class="nav-link">🟢 كروت الشاشة</a></li>
+      <li><a href="cases.html" class="nav-link">🖥️ الكيسات</a></li>
+      <li><a href="ram.html" class="nav-link">🟡 الرامات</a></li>
+      <li><a href="coolers.html" class="nav-link">💧 المبردات</a></li>
+      <li><a href="accessories.html" class="nav-link">💾 الإكسسوارات</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-btn" id="themeToggle" title="تبديل الثيم">🌙</button>
+      <a href="cart.html" class="nav-btn" style="text-decoration:none">🛒<span class="cart-count" id="cartCount" style="display:none">0</span></a>
+      <a href="admin-login.html" class="nav-btn" style="text-decoration:none">⚙️</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="../index.html" class="mobile-nav-link">🏠 الرئيسية</a>
+  <a href="processors.html" class="mobile-nav-link">🔵 المعالجات</a>
+  <a href="gpus.html" class="mobile-nav-link">🟢 كروت الشاشة</a>
+  <a href="cases.html" class="mobile-nav-link">🖥️ الكيسات</a>
+  <a href="ram.html" class="mobile-nav-link">🟡 الرامات</a>
+  <a href="coolers.html" class="mobile-nav-link">💧 المبردات</a>
+  <a href="accessories.html" class="mobile-nav-link">💾 الإكسسوارات</a>
+  <a href="cart.html" class="mobile-nav-link">🛒 السلة</a>
+</div>
+
+<div class="page-wrapper">
+  <!-- Hero -->
+  <div class="cat-page-hero hero-processors">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">الرئيسية</a><span class="sep">›</span><span>المعالجات</span></div>
+      <span class="cat-hero-icon">🔵</span>
+      <h1 class="page-hero-title">المعالجات (Processors)</h1>
+      <p class="page-hero-subtitle">Intel Core i3/i5/i7/i9 — AMD Ryzen 3/5/7/9 — من الجيل الثاني حتى الخامس عشر</p>
+      <div class="cat-hero-stats">
+        <div class="cat-hero-stat"><div class="cat-hero-stat-value">20</div><div class="cat-hero-stat-label">معالج متوفر</div></div>
+        <div class="cat-hero-stat"><div class="cat-hero-stat-value">2</div><div class="cat-hero-stat-label">ماركة رئيسية</div></div>
+        <div class="cat-hero-stat"><div class="cat-hero-stat-value">AM4/AM5/LGA1700</div><div class="cat-hero-stat-label">أنواع المقابس</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-bottom:80px">
+    <!-- Search + Sort Bar -->
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <input type="text" id="searchInput" placeholder="🔍 ابحث عن معالج..." style="flex:1;min-width:200px;padding:10px 16px;border:1px solid var(--border-color);border-radius:var(--radius-md);background:var(--bg-card);color:var(--text-primary);font-family:inherit;font-size:0.92rem"/>
+    </div>
+
+    <!-- Active Filters -->
+    <div class="active-filters" id="activeFilters"></div>
+
+    <!-- Sort Bar -->
+    <div class="sort-bar">
+      <span class="results-count" id="resultsCount"></span>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <select id="sortSelect" class="sort-select">
+          <option value="popular">الأكثر شعبية</option>
+          <option value="price-asc">السعر: من الأقل</option>
+          <option value="price-desc">السعر: من الأعلى</option>
+          <option value="rating">الأعلى تقييماً</option>
+          <option value="newest">الأحدث</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="grid" title="عرض شبكة">⊞</button>
+          <button class="view-btn" data-view="list" title="عرض قائمة">≡</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout -->
+    <button class="filters-toggle-btn" onclick="toggleFilters()">⚙️ الفلاتر</button>
+    <div class="products-layout">
+      <aside class="filters-sidebar" id="filtersSidebar"></aside>
+      <div>
+        <div class="products-grid" id="productsGrid"></div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer"><div class="container"><div class="footer-bottom"><span class="footer-copy">© 2026 TechZone. جميع الحقوق محفوظة.</span></div></div></footer>
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="../js/data.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/products.js"></script>
+<script>
+  // Override goToProduct for pages subdir
+  function goToProduct(id) { window.location.href = `product.html?id=${id}`; }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initProductsPage('processors', [
+      { field:'brand',      label:'الماركة',   icon:'🏷️' },
+      { field:'generation', label:'الجيل',     icon:'📅' },
+      { field:'cores',      label:'الأنوية',   icon:'⚙️' },
+      { field:'socket',     label:'المقبس',    icon:'🔌' },
+      { field:'ramSupport', label:'دعم الرام', icon:'🟡' },
+    ]);
+  });
+</script>
+</body>
+</html>
+

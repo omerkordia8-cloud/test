@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Omar's Tech Portfolio — Computer Science, Programming, Design & 3D" />
+  <title>Omar — Tech Portfolio</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/theme-light.css" />
+
+  <!-- Apply saved theme before render to avoid flash -->
+  <script>
+    (function() {
+      const t = localStorage.getItem('portfolio_theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- Background layers -->
+  <div class="bg-grid"></div>
+  <div class="bg-noise"></div>
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- ═══════════════════════════════════════════
+       NAVIGATION
+  ════════════════════════════════════════════ -->
+  <header class="navbar" id="navbar">
+    <div class="container navbar-inner">
+
+      <!-- Logo -->
+      <a href="#home" class="nav-logo">
+        <div class="logo-hex">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="24,3 45,14.5 45,33.5 24,45 3,33.5 3,14.5"
+              stroke="url(#nav-grad)" stroke-width="2" fill="none"/>
+            <text x="24" y="29" text-anchor="middle"
+              font-family="'Rajdhani',sans-serif" font-size="14"
+              font-weight="700" fill="url(#nav-grad)">OM</text>
+            <defs>
+              <linearGradient id="nav-grad" x1="3" y1="3" x2="45" y2="45">
+                <stop offset="0%" stop-color="#00e5ff"/>
+                <stop offset="100%" stop-color="#7b2fff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-name">Omar<span class="gradient-text">.</span></span>
+      </a>
+
+      <!-- Nav links -->
+      <nav class="nav-links" id="navLinks" role="navigation" aria-label="Main navigation">
+        <a href="#home"     class="nav-link active" data-section="home">Home</a>
+        <a href="#about"    class="nav-link"         data-section="about">About</a>
+        <a href="#projects" class="nav-link"         data-section="projects">Projects</a>
+        <a href="#contact"  class="nav-link"         data-section="contact">Contact</a>
+      </nav>
+
+      <!-- Right controls -->
+      <div class="nav-controls">
+        <!-- Theme toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle theme">
+          <!-- Sun icon (light mode) -->
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+            <line x1="12" y1="1"  x2="12" y2="3"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="4.22" y1="4.22"  x2="5.64" y2="5.64"  stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="1"  y1="12" x2="3"  y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <!-- Moon icon (dark mode) -->
+          <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <!-- Admin controls injected by JS based on session -->
+        <button class="btn-logout" id="logoutBtn" aria-label="Admin Login" style="display:none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2"/>
+            <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2"/>
+            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span>Logout</span>
+        </button>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+
+    </div>
+    <!-- Active indicator line -->
+    <div class="nav-indicator" id="navIndicator"></div>
+  </header>
+
+  <!-- Mobile overlay -->
+  <div class="nav-overlay" id="navOverlay"></div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 1 — HERO / HOME
+  ════════════════════════════════════════════ -->
+  <section id="home" class="section hero-section">
+
+    <!-- Floating orbs -->
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+
+    <div class="container hero-container">
+
+      <!-- Left — text content -->
+      <div class="hero-content">
+        <div class="hero-badge reveal">
+          <span class="badge-dot"></span>
+          <span class="badge-text">Available for Projects</span>
+        </div>
+
+        <div class="hero-greeting reveal">
+          <span class="mono-tag">// Hello, World!</span>
+        </div>
+
+        <h1 class="hero-title reveal">
+          <span class="hero-line-1">I'm <span class="gradient-text">Omar</span></span>
+          <span class="hero-line-2 typed-wrapper">
+            <span id="typed-text"></span><span class="cursor-blink">|</span>
+          </span>
+        </h1>
+
+        <p class="hero-description reveal">
+          A passionate tech enthusiast crafting digital experiences at the intersection of
+          <span class="highlight-cyan">programming</span>,
+          <span class="highlight-purple">design</span>, and
+          <span class="highlight-pink">3D art</span>.
+          Turning ideas into interactive realities.
+        </p>
+
+        <div class="hero-actions reveal">
+          <a href="#projects" class="btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+              <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2"/>
+              <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            View Projects
+          </a>
+          <a href="#contact" class="btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2"/>
+              <polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Contact Me
+          </a>
+        </div>
+
+        <div class="hero-stats reveal">
+          <div class="hstat">
+            <span class="hstat-num gradient-text" data-count="10">0</span>
+            <span class="hstat-plus">+</span>
+            <span class="hstat-label">Projects</span>
+          </div>
+          <div class="hstat-sep"></div>
+          <div class="hstat">
+            <span class="hstat-num gradient-text-pink" data-count="3">0</span>
+            <span class="hstat-plus">+</span>
+            <span class="hstat-label">Years Coding</span>
+          </div>
+          <div class="hstat-sep"></div>
+          <div class="hstat">
+            <span class="hstat-num gradient-text-green" data-count="5">0</span>
+            <span class="hstat-plus">+</span>
+            <span class="hstat-label">Technologies</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right — visual element -->
+      <div class="hero-visual reveal-right">
+        <div class="hero-avatar-wrapper">
+          <!-- Rotating rings -->
+          <div class="ring ring-outer"></div>
+          <div class="ring ring-middle"></div>
+          <div class="ring ring-inner"></div>
+          <!-- Avatar core -->
+          <div class="avatar-core">
+            <div class="avatar-icon">
+              <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Hexagon background -->
+                <polygon points="60,8 104,32 104,80 60,104 16,80 16,32"
+                  fill="rgba(0,229,255,0.05)" stroke="url(#av-grad)" stroke-width="1.5"/>
+                <!-- Code brackets -->
+                <text x="30" y="55" font-family="'Share Tech Mono',monospace" font-size="22" fill="url(#av-grad)">&lt;/&gt;</text>
+                <!-- Dots -->
+                <circle cx="60" cy="80" r="3" fill="#00e5ff" opacity="0.7"/>
+                <circle cx="50" cy="80" r="2" fill="#7b2fff" opacity="0.7"/>
+                <circle cx="70" cy="80" r="2" fill="#ff2d78" opacity="0.7"/>
+                <!-- Circuit lines -->
+                <line x1="16" y1="56" x2="30" y2="56" stroke="#00e5ff" stroke-width="1" opacity="0.3"/>
+                <line x1="90" y1="56" x2="104" y2="56" stroke="#7b2fff" stroke-width="1" opacity="0.3"/>
+                <circle cx="14" cy="56" r="2" fill="#00e5ff" opacity="0.5"/>
+                <circle cx="106" cy="56" r="2" fill="#7b2fff" opacity="0.5"/>
+                <defs>
+                  <linearGradient id="av-grad" x1="16" y1="8" x2="104" y2="104">
+                    <stop offset="0%" stop-color="#00e5ff"/>
+                    <stop offset="100%" stop-color="#7b2fff"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+          </div>
+          <!-- Floating skill chips -->
+          <div class="skill-chip chip-1">Python</div>
+          <div class="skill-chip chip-2">Blender 3D</div>
+          <div class="skill-chip chip-3">JavaScript</div>
+          <div class="skill-chip chip-4">Adobe CC</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+      <div class="scroll-mouse">
+        <div class="scroll-wheel"></div>
+      </div>
+      <span>Scroll Down</span>
+    </div>
+
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 2 — ABOUT ME
+  ════════════════════════════════════════════ -->
+  <section id="about" class="section about-section">
+    <div class="container">
+
+      <h2 class="section-title reveal"><span class="gradient-text">About</span> Me</h2>
+      <div class="section-line reveal"></div>
+
+      <div class="about-grid">
+
+        <!-- Left — info card -->
+        <div class="about-card reveal-left">
+          <div class="about-card-header">
+            <div class="about-terminal-dots">
+              <span class="tdot tdot-red"></span>
+              <span class="tdot tdot-yellow"></span>
+              <span class="tdot tdot-green"></span>
+            </div>
+            <span class="about-terminal-title">about_me.txt</span>
+          </div>
+          <div class="about-card-body">
+            <div class="about-bio-line">
+              <span class="bio-key gradient-text">name</span>
+              <span class="bio-sep">:</span>
+              <span class="bio-val">"Omar"</span>
+            </div>
+            <div class="about-bio-line">
+              <span class="bio-key gradient-text">role</span>
+              <span class="bio-sep">:</span>
+              <span class="bio-val">"Tech Enthusiast &amp; Creator"</span>
+            </div>
+            <div class="about-bio-line">
+              <span class="bio-key gradient-text">passion</span>
+              <span class="bio-sep">:</span>
+              <span class="bio-val">"Building &amp; Designing"</span>
+            </div>
+            <div class="about-bio-line">
+              <span class="bio-key gradient-text">education</span>
+              <span class="bio-sep">:</span>
+              <span class="bio-val">"Computer Science"</span>
+            </div>
+            <div class="about-bio-line">
+              <span class="bio-key gradient-text">status</span>
+              <span class="bio-sep">:</span>
+              <span class="bio-val bio-available">
+                <span class="pulse-dot"></span>"Available"
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle — description -->
+        <div class="about-desc reveal">
+          <p class="about-text">
+            I'm a technology enthusiast with a deep passion for creating at the intersection of
+            code, art, and design. I love pushing the boundaries of what's possible — whether
+            that's writing elegant algorithms, crafting immersive 3D visuals, or designing
+            pixel-perfect interfaces.
+          </p>
+          <p class="about-text">
+            My journey spans across multiple disciplines: from backend programming and scripting
+            to front-end design, 3D modeling in Blender, and visual storytelling with Adobe's
+            creative suite. Every project is a new puzzle to solve.
+          </p>
+
+          <div class="about-pillars">
+            <div class="pillar reveal">
+              <div class="pillar-icon" style="--pc: #00e5ff">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <polyline points="16 18 22 12 16 6" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="8 6 2 12 8 18" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="pillar-title">Programming</h4>
+                <p class="pillar-text">Python, C++, JavaScript, algorithms & data structures</p>
+              </div>
+            </div>
+            <div class="pillar reveal">
+              <div class="pillar-icon" style="--pc: #7b2fff">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                  <line x1="4.93" y1="4.93" x2="9.17" y2="9.17" stroke="currentColor" stroke-width="2"/>
+                  <line x1="14.83" y1="14.83" x2="19.07" y2="19.07" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="pillar-title">Design</h4>
+                <p class="pillar-text">UI/UX, Adobe Photoshop, Illustrator, visual identity</p>
+              </div>
+            </div>
+            <div class="pillar reveal">
+              <div class="pillar-icon" style="--pc: #ff2d78">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="2"/>
+                  <path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="pillar-title">3D Modeling</h4>
+                <p class="pillar-text">Blender, 3D visualization, rendering, animation</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right — skills bars -->
+        <div class="skills-panel reveal-right">
+          <h3 class="skills-title">
+            <span class="mono-tag">// Skills</span>
+          </h3>
+          <div class="skills-list">
+            <div class="skill-bar-item" data-level="88">
+              <div class="sb-header">
+                <span class="sb-name">Python</span>
+                <span class="sb-percent gradient-text">88%</span>
+              </div>
+              <div class="sb-track">
+                <div class="sb-fill" style="--clr: #00e5ff"></div>
+              </div>
+            </div>
+            <div class="skill-bar-item" data-level="80">
+              <div class="sb-header">
+                <span class="sb-name">JavaScript / HTML / CSS</span>
+                <span class="sb-percent gradient-text">80%</span>
+              </div>
+              <div class="sb-track">
+                <div class="sb-fill" style="--clr: #7b2fff"></div>
+              </div>
+            </div>
+            <div class="skill-bar-item" data-level="75">
+              <div class="sb-header">
+                <span class="sb-name">C / C++</span>
+                <span class="sb-percent gradient-text">75%</span>
+              </div>
+              <div class="sb-track">
+                <div class="sb-fill" style="--clr: #00e5ff"></div>
+              </div>
+            </div>
+            <div class="skill-bar-item" data-level="85">
+              <div class="sb-header">
+                <span class="sb-name">Blender 3D</span>
+                <span class="sb-percent gradient-text-pink">85%</span>
+              </div>
+              <div class="sb-track">
+                <div class="sb-fill" style="--clr: #ff2d78"></div>
+              </div>
+            </div>
+            <div class="skill-bar-item" data-level="90">
+              <div class="sb-header">
+                <span class="sb-name">Adobe (PS / AI / PR)</span>
+                <span class="sb-percent gradient-text-pink">90%</span>
+              </div>
+              <div class="sb-track">
+                <div class="sb-fill" style="--clr: #ff2d78"></div>
+              </div>
+            </div>
+            <div class="skill-bar-item" data-level="70">
+              <div class="sb-header">
+                <span class="sb-name">AI / Machine Learning</span>
+                <span class="sb-percent gradient-text-green">70%</span>
+              </div>
+              <div class="sb-track">
+                <div class="sb-fill" style="--clr: #00ff88"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 3 — PROJECTS
+  ════════════════════════════════════════════ -->
+  <section id="projects" class="section projects-section">
+    <div class="container">
+
+      <h2 class="section-title reveal"><span class="gradient-text">My</span> Projects</h2>
+      <div class="section-line reveal"></div>
+      <p class="section-subtitle reveal">// A showcase of what I've built &amp; created</p>
+
+      <!-- Filter tabs -->
+      <div class="project-filters reveal">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="programming">Programming</button>
+        <button class="filter-btn" data-filter="design">Design</button>
+        <button class="filter-btn" data-filter="3d">3D</button>
+        <button class="filter-btn" data-filter="ai">AI / ML</button>
+      </div>
+
+      <!-- Projects grid -->
+      <div class="projects-grid" id="projectsGrid">
+
+        <!-- Project 1 -->
+        <article class="project-card reveal" data-category="programming ai">
+          <div class="card-glow-border"></div>
+          <div class="card-inner">
+            <div class="card-header">
+              <div class="card-icon" style="--ci: #00e5ff">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="card-badges">
+                <span class="badge badge-programming">Python</span>
+                <span class="badge badge-ai">AI</span>
+              </div>
+            </div>
+            <h3 class="card-title">AI Chatbot System</h3>
+            <p class="card-desc">An intelligent conversational AI built with Python and natural language processing. Features context memory, multi-turn dialogue, and custom command handling.</p>
+            <div class="card-tech">
+              <span class="tech-pill">Python</span>
+              <span class="tech-pill">NLP</span>
+              <span class="tech-pill">TensorFlow</span>
+            </div>
+            <div class="card-footer">
+              <a href="#" class="card-link" aria-label="View AI Chatbot project">
+                View Project
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="12 5 19 12 12 19" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="card-scanline"></div>
+        </article>
+
+        <!-- Project 2 -->
+        <article class="project-card reveal" data-category="3d design">
+          <div class="card-glow-border"></div>
+          <div class="card-inner">
+            <div class="card-header">
+              <div class="card-icon" style="--ci: #ff2d78">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+              </div>
+              <div class="card-badges">
+                <span class="badge badge-3d">3D</span>
+                <span class="badge badge-design">Design</span>
+              </div>
+            </div>
+            <h3 class="card-title">Sci-Fi Environment — Blender</h3>
+            <p class="card-desc">A fully detailed futuristic city environment modeled, textured, and rendered in Blender. Uses EEVEE & Cycles rendering with HDR lighting and atmospheric fog.</p>
+            <div class="card-tech">
+              <span class="tech-pill">Blender</span>
+              <span class="tech-pill">Cycles</span>
+              <span class="tech-pill">HDRI</span>
+            </div>
+            <div class="card-footer">
+              <a href="#" class="card-link" aria-label="View Blender project">
+                View Project
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="12 5 19 12 12 19" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="card-scanline"></div>
+        </article>
+
+        <!-- Project 3 -->
+        <article class="project-card reveal" data-category="programming">
+          <div class="card-glow-border"></div>
+          <div class="card-inner">
+            <div class="card-header">
+              <div class="card-icon" style="--ci: #7b2fff">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <polyline points="16 18 22 12 16 6" stroke="currentColor" stroke-width="1.5"/>
+                  <polyline points="8 6 2 12 8 18" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+              </div>
+              <div class="card-badges">
+                <span class="badge badge-programming">C++</span>
+              </div>
+            </div>
+            <h3 class="card-title">Data Structures Library</h3>
+            <p class="card-desc">A comprehensive C++ library implementing advanced data structures: AVL trees, hash maps, graph algorithms, and sorting algorithms with full documentation.</p>
+            <div class="card-tech">
+              <span class="tech-pill">C++</span>
+              <span class="tech-pill">Algorithms</span>
+              <span class="tech-pill">DSA</span>
+            </div>
+            <div class="card-footer">
+              <a href="#" class="card-link" aria-label="View Data Structures project">
+                View Project
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="12 5 19 12 12 19" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="card-scanline"></div>
+        </article>
+
+        <!-- Project 4 -->
+        <article class="project-card reveal" data-category="design">
+          <div class="card-glow-border"></div>
+          <div class="card-inner">
+            <div class="card-header">
+              <div class="card-icon" style="--ci: #00ff88">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+              </div>
+              <div class="card-badges">
+                <span class="badge badge-design">UI/UX</span>
+              </div>
+            </div>
+            <h3 class="card-title">Brand Identity Design</h3>
+            <p class="card-desc">Complete visual identity system including logo design, color palettes, typography guidelines, and brand assets. Created with Adobe Illustrator and Photoshop.</p>
+            <div class="card-tech">
+              <span class="tech-pill">Illustrator</span>
+              <span class="tech-pill">Photoshop</span>
+              <span class="tech-pill">Branding</span>
+            </div>
+            <div class="card-footer">
+              <a href="#" class="card-link" aria-label="View Brand Identity project">
+                View Project
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="12 5 19 12 12 19" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="card-scanline"></div>
+        </article>
+
+        <!-- Project 5 -->
+        <article class="project-card reveal" data-category="programming design">
+          <div class="card-glow-border"></div>
+          <div class="card-inner">
+            <div class="card-header">
+              <div class="card-icon" style="--ci: #00e5ff">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                  <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2"/>
+                  <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="card-badges">
+                <span class="badge badge-programming">Web</span>
+                <span class="badge badge-design">Design</span>
+              </div>
+            </div>
+            <h3 class="card-title">Interactive Portfolio Website</h3>
+            <p class="card-desc">This very portfolio — built from scratch with pure HTML, CSS, and JavaScript. Features animations, particle systems, auth guard, and responsive design.</p>
+            <div class="card-tech">
+              <span class="tech-pill">HTML</span>
+              <span class="tech-pill">CSS</span>
+              <span class="tech-pill">JavaScript</span>
+            </div>
+            <div class="card-footer">
+              <a href="#" class="card-link" aria-label="View Portfolio project">
+                View Project
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="12 5 19 12 12 19" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="card-scanline"></div>
+        </article>
+
+        <!-- Project 6 -->
+        <article class="project-card reveal" data-category="3d">
+          <div class="card-glow-border"></div>
+          <div class="card-inner">
+            <div class="card-header">
+              <div class="card-icon" style="--ci: #ff2d78">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+              </div>
+              <div class="card-badges">
+                <span class="badge badge-3d">3D</span>
+              </div>
+            </div>
+            <h3 class="card-title">Character Model — Blender</h3>
+            <p class="card-desc">A stylized 3D character sculpted and rigged in Blender. Includes custom textures, shader nodes, and a walk-cycle animation ready for game engines.</p>
+            <div class="card-tech">
+              <span class="tech-pill">Blender</span>
+              <span class="tech-pill">Sculpting</span>
+              <span class="tech-pill">Rigging</span>
+            </div>
+            <div class="card-footer">
+              <a href="#" class="card-link" aria-label="View Character Model project">
+                View Project
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="12 5 19 12 12 19" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="card-scanline"></div>
+        </article>
+
+      </div><!-- /projects-grid -->
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 4 — CONTACT
+  ════════════════════════════════════════════ -->
+  <section id="contact" class="section contact-section">
+    <div class="container">
+
+      <h2 class="section-title reveal"><span class="gradient-text">Get In</span> Touch</h2>
+      <div class="section-line reveal"></div>
+      <p class="section-subtitle reveal">// Let's build something amazing together</p>
+
+      <div class="contact-grid">
+
+        <!-- Left — info cards -->
+        <div class="contact-info">
+          <p class="contact-intro reveal">
+            Have a project in mind? Want to collaborate? Or just want to say hello?
+            My inbox is always open. I'll do my best to get back to you!
+          </p>
+
+          <div class="contact-cards">
+            <div class="contact-card reveal">
+              <div class="contact-card-icon" style="--ci: #00e5ff">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <span class="contact-card-label">Email</span>
+                <a href="mailto:omar@example.com" class="contact-card-value">omar@example.com</a>
+              </div>
+            </div>
+
+            <div class="contact-card reveal">
+              <div class="contact-card-icon" style="--ci: #7b2fff">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <span class="contact-card-label">GitHub</span>
+                <a href="https://github.com" target="_blank" rel="noopener" class="contact-card-value">github.com/omar</a>
+              </div>
+            </div>
+
+            <div class="contact-card reveal">
+              <div class="contact-card-icon" style="--ci: #ff2d78">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" stroke="currentColor" stroke-width="2"/>
+                  <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <span class="contact-card-label">YouTube</span>
+                <a href="https://youtube.com" target="_blank" rel="noopener" class="contact-card-value">youtube.com/omar</a>
+              </div>
+            </div>
+
+            <div class="contact-card reveal">
+              <div class="contact-card-icon" style="--ci: #00ff88">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" stroke="currentColor" stroke-width="2"/>
+                  <rect x="2" y="9" width="4" height="12" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <span class="contact-card-label">LinkedIn</span>
+                <a href="https://linkedin.com" target="_blank" rel="noopener" class="contact-card-value">linkedin.com/in/omar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right — contact form -->
+        <div class="contact-form-wrapper reveal-right">
+          <div class="contact-form-card">
+            <div class="card-glow-line"></div>
+            <form class="contact-form" id="contactForm" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="contactName">Name</label>
+                  <div class="input-wrapper">
+                    <input type="text" id="contactName" class="form-input" placeholder="Your name" />
+                    <div class="input-border"></div>
+                    <div class="input-glow"></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="contactEmail">Email</label>
+                  <div class="input-wrapper">
+                    <input type="email" id="contactEmail" class="form-input" placeholder="your@email.com" />
+                    <div class="input-border"></div>
+                    <div class="input-glow"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="contactSubject">Subject</label>
+                <div class="input-wrapper">
+                  <input type="text" id="contactSubject" class="form-input" placeholder="What's this about?" />
+                  <div class="input-border"></div>
+                  <div class="input-glow"></div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="contactMessage">Message</label>
+                <div class="input-wrapper">
+                  <textarea id="contactMessage" class="form-input form-textarea" placeholder="Your message here..." rows="5"></textarea>
+                  <div class="input-border"></div>
+                  <div class="input-glow"></div>
+                </div>
+              </div>
+              <button type="submit" class="btn-primary btn-full" id="sendBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <line x1="22" y1="2" x2="11" y2="13" stroke="currentColor" stroke-width="2"/>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                Send Message
+              </button>
+              <div class="form-success-msg" id="formSuccessMsg"></div>
+            </form>
+          </div>
+        </div>
+
+      </div><!-- /contact-grid -->
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════════ -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span class="logo-name">Omar<span class="gradient-text">.</span></span>
+        <span class="footer-tagline">Built with passion &amp; code</span>
+      </div>
+      <div class="footer-copy">
+        <span class="mono-tag">// 2025</span>
+        <span>All rights reserved</span>
+      </div>
+    </div>
+    <div class="footer-line"></div>
+  </footer>
+
+  <!-- Scroll to top button -->
+  <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <polyline points="18 15 12 9 6 15" stroke="currentColor" stroke-width="2"/>
+    </svg>
+  </button>
+
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
+</body>
+</html>

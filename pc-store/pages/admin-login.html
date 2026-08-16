@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>تسجيل دخول المطور — TechZone</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/base.css"/>
+  <link rel="stylesheet" href="../css/admin.css"/>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script></head>
+<body>
+<div class="login-page">
+  <div class="login-bg-shape login-bg-shape-1"></div>
+  <div class="login-bg-shape login-bg-shape-2"></div>
+
+  <div class="login-card">
+    <!-- Theme Toggle -->
+    <div style="position:absolute;top:20px;left:20px">
+      <button class="nav-btn" id="themeToggle" style="width:36px;height:36px">🌙</button>
+    </div>
+
+    <div class="login-logo">
+      <div class="login-logo-icon">⚡</div>
+      <span class="login-logo-text">Tech<span>Zone</span></span>
+    </div>
+
+    <h1 class="login-title">لوحة التحكم</h1>
+    <p class="login-subtitle">للمطورين والمشرفين فقط — أدخل بياناتك للدخول</p>
+
+    <div id="loginAlert" class="login-alert" style="display:none"></div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label" for="username">👤 اسم المستخدم</label>
+        <input type="text" id="username" class="form-input" placeholder="أدخل اسم المستخدم" autocomplete="username" required/>
+        <div class="form-error" id="usernameError">يرجى إدخال اسم المستخدم</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">🔒 كلمة المرور</label>
+        <div class="password-toggle">
+          <input type="password" id="password" class="form-input" placeholder="أدخل كلمة المرور" autocomplete="current-password" required/>
+          <button type="button" class="eye-btn" onclick="togglePassword()" id="eyeBtn">👁️</button>
+        </div>
+        <div class="form-error" id="passwordError">يرجى إدخال كلمة المرور</div>
+      </div>
+
+      <button type="submit" class="login-btn" id="loginBtn">🔐 تسجيل الدخول</button>
+    </form>
+
+    <div style="margin-top:24px;padding:16px;background:var(--bg-sidebar);border-radius:var(--radius-md);border:1px solid var(--border-light)">
+      <p style="font-size:0.8rem;color:var(--text-muted);text-align:center;margin-bottom:8px">بيانات الدخول التجريبية:</p>
+      <div style="font-size:0.85rem;color:var(--text-secondary);text-align:center">
+        المستخدم: <code style="background:var(--bg-primary);padding:2px 6px;border-radius:4px;color:var(--accent)">admin</code>
+        &nbsp;&nbsp;
+        المرور: <code style="background:var(--bg-primary);padding:2px 6px;border-radius:4px;color:var(--accent)">techzone2026</code>
+      </div>
+    </div>
+
+    <p style="text-align:center;margin-top:20px;font-size:0.85rem">
+      <a href="../index.html" style="color:var(--text-muted)">← العودة للمتجر</a>
+    </p>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="../js/data.js"></script>
+<script src="../js/main.js"></script>
+<script>
+const ADMIN_CREDS = { username: 'admin', password: 'techzone2026' };
+
+function handleLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const alert = document.getElementById('loginAlert');
+  const btn = document.getElementById('loginBtn');
+
+  // Clear errors
+  alert.style.display = 'none';
+  alert.className = 'login-alert';
+
+  if (!username) { document.getElementById('usernameError').classList.add('visible'); return; }
+  if (!password) { document.getElementById('passwordError').classList.add('visible'); return; }
+
+  // Loading state
+  btn.textContent = '⏳ جاري التحقق...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    if (username === ADMIN_CREDS.username && password === ADMIN_CREDS.password) {
+      localStorage.setItem('pcstore_admin_auth', JSON.stringify({ user: username, time: Date.now() }));
+      alert.textContent = '✅ تم تسجيل الدخول بنجاح! جاري التحويل...';
+      alert.className = 'login-alert success';
+      alert.style.display = 'block';
+      setTimeout(() => window.location.href = 'admin.html', 1000);
+    } else {
+      alert.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
+      alert.className = 'login-alert error';
+      alert.style.display = 'block';
+      btn.textContent = '🔐 تسجيل الدخول';
+      btn.disabled = false;
+      document.getElementById('password').value = '';
+      document.getElementById('password').classList.add('error');
+    }
+  }, 800);
+}
+
+function togglePassword() {
+  const input = document.getElementById('password');
+  const btn = document.getElementById('eyeBtn');
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁️'; }
+}
+
+// Clear error on input
+document.getElementById('username').addEventListener('input', () => {
+  document.getElementById('usernameError').classList.remove('visible');
+  document.getElementById('username').classList.remove('error');
+});
+document.getElementById('password').addEventListener('input', () => {
+  document.getElementById('passwordError').classList.remove('visible');
+  document.getElementById('password').classList.remove('error');
+});
+
+// Check if already logged in
+if (localStorage.getItem('pcstore_admin_auth')) {
+  const auth = JSON.parse(localStorage.getItem('pcstore_admin_auth'));
+  if (Date.now() - auth.time < 3600000) window.location.href = 'admin.html';
+}
+</script>
+</body>
+</html>
+

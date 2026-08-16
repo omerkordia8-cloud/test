@@ -1,0 +1,409 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>تفاصيل المنتج — TechZone</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/base.css"/>
+  <link rel="stylesheet" href="../css/product-detail.css"/>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script></head>
+<body>
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="../index.html" class="logo"><div class="logo-icon">⚡</div>Tech<span>Zone</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html" class="nav-link">🏠 الرئيسية</a></li>
+      <li><a href="processors.html" class="nav-link">🔵 المعالجات</a></li>
+      <li><a href="gpus.html" class="nav-link">🟢 كروت الشاشة</a></li>
+      <li><a href="cases.html" class="nav-link">🖥️ الكيسات</a></li>
+      <li><a href="ram.html" class="nav-link">🟡 الرامات</a></li>
+      <li><a href="coolers.html" class="nav-link">💧 المبردات</a></li>
+      <li><a href="accessories.html" class="nav-link">💾 الإكسسوارات</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-btn" id="themeToggle">🌙</button>
+      <a href="cart.html" class="nav-btn" style="text-decoration:none">🛒<span class="cart-count" id="cartCount" style="display:none">0</span></a>
+      <a href="admin-login.html" class="nav-btn" style="text-decoration:none">⚙️</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="../index.html" class="mobile-nav-link">🏠 الرئيسية</a>
+  <a href="processors.html" class="mobile-nav-link">🔵 المعالجات</a>
+  <a href="gpus.html" class="mobile-nav-link">🟢 كروت الشاشة</a>
+  <a href="cases.html" class="mobile-nav-link">🖥️ الكيسات</a>
+  <a href="ram.html" class="mobile-nav-link">🟡 الرامات</a>
+  <a href="coolers.html" class="mobile-nav-link">💧 المبردات</a>
+  <a href="accessories.html" class="mobile-nav-link">💾 الإكسسوارات</a>
+  <a href="cart.html" class="mobile-nav-link">🛒 السلة</a>
+</div>
+
+<div class="page-wrapper">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb" id="breadcrumb" style="padding-top:28px;margin-bottom:0">
+      <a href="../index.html">الرئيسية</a>
+      <span class="sep">›</span>
+      <a href="#" id="breadCat">المنتجات</a>
+      <span class="sep">›</span>
+      <span id="breadName">...</span>
+    </div>
+
+    <!-- Product Detail Layout -->
+    <div class="product-detail-layout" id="productLayout">
+      <!-- Loading -->
+      <div style="grid-column:1/-1;text-align:center;padding:80px;color:var(--text-muted);font-size:1.1rem">
+        ⏳ جاري التحميل...
+      </div>
+    </div>
+
+    <!-- Tabs Section -->
+    <div class="detail-tabs" id="detailTabs" style="display:none">
+      <div class="tabs-header">
+        <button class="tab-btn active" onclick="switchTab('specs',this)">📋 المواصفات الكاملة</button>
+        <button class="tab-btn" onclick="switchTab('desc',this)">📝 الوصف</button>
+        <button class="tab-btn" onclick="switchTab('reviews',this)">⭐ التقييمات</button>
+        <button class="tab-btn" onclick="switchTab('compat',this)">🔧 التوافق</button>
+      </div>
+      <div class="tab-content active" id="tab-specs">
+        <table class="specs-table" id="specsTable"></table>
+      </div>
+      <div class="tab-content" id="tab-desc">
+        <p id="descText" style="color:var(--text-secondary);line-height:1.8;font-size:0.97rem"></p>
+      </div>
+      <div class="tab-content" id="tab-reviews">
+        <!-- Review Form -->
+        <div class="review-form">
+          <h4>أضف تقييمك</h4>
+          <div class="review-stars-input" id="reviewStarsInput">
+            <span class="review-star" data-val="1" onclick="selectReviewStar(1)">★</span>
+            <span class="review-star" data-val="2" onclick="selectReviewStar(2)">★</span>
+            <span class="review-star" data-val="3" onclick="selectReviewStar(3)">★</span>
+            <span class="review-star" data-val="4" onclick="selectReviewStar(4)">★</span>
+            <span class="review-star" data-val="5" onclick="selectReviewStar(5)">★</span>
+          </div>
+          <input type="text" id="reviewName" placeholder="اسمك (اختياري)" class="review-textarea" style="min-height:auto;height:42px;margin-bottom:10px"/>
+          <textarea class="review-textarea" id="reviewText" placeholder="شاركنا رأيك في هذا المنتج..."></textarea>
+          <button class="btn btn-primary btn-sm" onclick="submitReview()">📤 إرسال التقييم</button>
+        </div>
+        <div id="reviewsList"></div>
+      </div>
+      <div class="tab-content" id="tab-compat">
+        <div id="compatInfo" style="color:var(--text-secondary);line-height:1.9;font-size:0.95rem"></div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="related-section" id="relatedSection" style="display:none">
+      <div class="section-header" style="text-align:right;margin-bottom:28px">
+        <h2 class="section-title" style="font-size:1.4rem">منتجات <span>مشابهة</span></h2>
+      </div>
+      <div class="products-grid related-grid" id="relatedGrid"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer"><div class="container"><div class="footer-bottom"><span class="footer-copy">© 2026 TechZone. جميع الحقوق محفوظة.</span></div></div></footer>
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="../js/data.js"></script>
+<script src="../js/main.js"></script>
+<script>
+// Override goToProduct
+function goToProduct(id) { window.location.href = `product.html?id=${id}`; }
+
+const CAT_NAMES = { processors:'المعالجات', gpus:'كروت الشاشة', cases:'الكيسات', ram:'الرامات', coolers:'المبردات', accessories:'الإكسسوارات' };
+const CAT_PAGES = { processors:'processors.html', gpus:'gpus.html', cases:'cases.html', ram:'ram.html', coolers:'coolers.html', accessories:'accessories.html' };
+
+let currentProduct = null;
+let selectedQty = 1;
+let reviewStarVal = 0;
+
+function getCategoryCompatInfo(p) {
+  const map = {
+    processors: `
+      <strong>توافق اللوحة الأم:</strong> يتطلب لوحة أم بمقبس ${p.socket || 'متوافق'}<br>
+      <strong>دعم الرام:</strong> ${p.ramSupport || 'DDR4/DDR5'}<br>
+      <strong>المبرد الموصى به:</strong> مبرد بتقدير TDP ${p.tdp || '125W'} أو أعلى<br>
+      <strong>مزود الطاقة:</strong> على الأقل 550W لمعظم البنايات`,
+    gpus: `
+      <strong>الفتحة المطلوبة:</strong> ${p.connector || 'PCIe x16'}<br>
+      <strong>الطاقة المطلوبة:</strong> ${p.tdp || 'راجع المواصفات'}<br>
+      <strong>مزود الطاقة:</strong> يُنصح بـ ${Math.ceil(((p.tdp||200)+150)/100)*100}W على الأقل<br>
+      <strong>الحد الأدنى لطول الكيسة:</strong> تحقق من أبعاد الكيسة`,
+    cases: `
+      <strong>اللوحات المدعومة:</strong> ${p.motherboard || 'ATX/mATX/ITX'}<br>
+      <strong>أقصى طول كرت شاشة:</strong> ${p.specs?.maxGPU || 'راجع المواصفات'}<br>
+      <strong>أقصى ارتفاع مبرد:</strong> ${p.specs?.maxCooler || 'راجع المواصفات'}<br>
+      <strong>دعم التبريد المائي:</strong> ${p.specs?.waterCooling || 'راجع المواصفات'}`,
+    ram: `
+      <strong>التوافق مع المعالجات:</strong> ${p.type === 'DDR5' ? 'Intel Gen 12+ على AM5، AMD Ryzen 7000' : 'Intel Gen 10-13، AMD Ryzen AM4'}<br>
+      <strong>XMP/EXPO:</strong> تأكد من دعم اللوحة الأم لـ ${p.type === 'DDR5' ? 'XMP 3.0/EXPO' : 'XMP 2.0'}<br>
+      <strong>التركيب:</strong> للأداء الأمثل ركّب في الفتحات المزدوجة (Dual Channel)`,
+    coolers: `
+      <strong>التوافق مع المقابس:</strong> ${p.socket || 'راجع المواصفات'}<br>
+      <strong>الحد الأقصى للـ TDP:</strong> ${p.tdpRating || 'راجع المواصفات'}<br>
+      <strong>ارتفاع المبرد:</strong> ${p.specs?.height || 'راجع المواصفات'}<br>
+      <strong>ملاحظة:</strong> تحقق من الكلير بين المبرد وفتحات الرام في كيستك`,
+    accessories: `
+      <strong>التوافق:</strong> ${p.interface || p.specs?.interface || 'SATA III / PCIe'}<br>
+      <strong>شكل القرص:</strong> ${p.formFactor || p.specs?.formFactor || 'راجع المواصفات'}<br>
+      <strong>ملاحظة:</strong> تأكد من وجود المنفذ المناسب في لوحتك الأم`
+  };
+  return map[p.category] || '<p>راجع دليل المستخدم للتوافق الكامل.</p>';
+}
+
+function renderProduct(p) {
+  currentProduct = p;
+  document.title = `${p.name} — TechZone`;
+
+  // Breadcrumb
+  document.getElementById('breadCat').textContent = CAT_NAMES[p.category] || p.category;
+  document.getElementById('breadCat').href = CAT_PAGES[p.category] || '#';
+  document.getElementById('breadName').textContent = p.name;
+
+  // User rating
+  const userRating = getUserRating(p.id);
+  const displayRating = userRating || p.rating;
+
+  // Quick specs
+  const specEntries = p.specs ? Object.entries(p.specs) : [];
+  const quickSpecsHtml = specEntries.slice(0, 6).map(([k, v]) => `
+    <div class="quick-spec-item">
+      <div class="quick-spec-label">${k}</div>
+      <div class="quick-spec-value">${v}</div>
+    </div>`).join('');
+
+  // Badge
+  const badgeMap = { bestseller:'🏆 الأكثر مبيعاً', popular:'🔥 شائع', new:'✨ جديد', premium:'💎 برميوم' };
+
+  const layout = document.getElementById('productLayout');
+  layout.innerHTML = `
+    <!-- Left: Image -->
+    <div class="product-image-panel">
+      <div class="product-main-img">${p.icon || '📦'}</div>
+      <div class="product-badges">
+        ${p.badge ? `<span class="badge badge-new">${badgeMap[p.badge] || p.badge}</span>` : ''}
+        ${p.rayTracing ? '<span class="badge badge-accent">✨ Ray Tracing</span>' : ''}
+        ${p.rgb ? '<span class="badge badge-accent">🌈 RGB</span>' : ''}
+        <span class="badge badge-success">✅ متوفر في المخزون</span>
+      </div>
+      <!-- Share / Compare -->
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-outline btn-sm" onclick="shareProduct()" style="flex:1">📤 مشاركة</button>
+        <button class="btn btn-outline btn-sm" id="wishBtn" onclick="toggleWishlist('${p.id}')" style="flex:1">♡ المفضلة</button>
+      </div>
+    </div>
+
+    <!-- Right: Info -->
+    <div class="product-info-panel">
+      <div class="product-detail-brand">${p.brand}</div>
+      <h1 class="product-detail-name">${p.name}</h1>
+
+      <div class="product-rating-row">
+        <span id="interactiveStars">${renderStars(displayRating, true, p.id)}</span>
+        <span class="rating-value">${displayRating.toFixed(1)}</span>
+        <span class="review-count">(${p.reviews.toLocaleString('ar-SA')} تقييم)</span>
+        ${p.badge ? `<span class="badge badge-new">${badgeMap[p.badge]||p.badge}</span>` : ''}
+      </div>
+
+      <div class="price-row">
+        <div class="availability">متوفر في المخزون</div>
+        <div class="product-detail-price">${p.price.toLocaleString('ar-SA')} <span class="currency">ر.س</span></div>
+        <div style="font-size:0.82rem;color:var(--text-muted);margin-top:4px">شامل ضريبة القيمة المضافة</div>
+      </div>
+
+      <!-- Actions -->
+      <div class="product-actions">
+        <div class="qty-selector">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <input class="qty-input" type="number" id="qtyInput" value="1" min="1" max="99" onchange="selectedQty=Math.max(1,parseInt(this.value)||1)"/>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+        <button class="btn-add-cart" onclick="addToCartWithQty('${p.id}')">
+          🛒 أضف إلى السلة
+        </button>
+        <button class="btn-wishlist" id="wishlistBtnMain" onclick="toggleWishlist('${p.id}')">♡</button>
+      </div>
+
+      <div class="detail-divider"></div>
+
+      <!-- Quick Specs Grid -->
+      <div class="quick-specs">${quickSpecsHtml}</div>
+
+      <!-- Delivery Info -->
+      <div style="background:var(--bg-sidebar);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:16px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem">
+          <span style="font-size:1.2rem">🚀</span>
+          <div><strong>توصيل سريع</strong><br><span style="color:var(--text-muted)">خلال 2-4 أيام عمل لجميع مناطق المملكة</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem">
+          <span style="font-size:1.2rem">🛡️</span>
+          <div><strong>ضمان أصلي</strong><br><span style="color:var(--text-muted)">ضمان المصنع مع إمكانية الاسترجاع خلال 14 يوم</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem">
+          <span style="font-size:1.2rem">💳</span>
+          <div><strong>دفع آمن</strong><br><span style="color:var(--text-muted)">Visa • Mastercard • Apple Pay • مدى</span></div>
+        </div>
+      </div>
+    </div>`;
+
+  // Fill tabs
+  // Specs table
+  let specsHtml = '';
+  if (p.specs) {
+    Object.entries(p.specs).forEach(([k, v]) => {
+      specsHtml += `<tr><td>${k}</td><td>${v}</td></tr>`;
+    });
+  }
+  document.getElementById('specsTable').innerHTML = specsHtml || '<tr><td colspan="2" style="color:var(--text-muted)">لا توجد مواصفات إضافية</td></tr>';
+
+  // Description
+  document.getElementById('descText').textContent = p.description || 'لا يوجد وصف متاح لهذا المنتج.';
+
+  // Compatibility
+  document.getElementById('compatInfo').innerHTML = getCategoryCompatInfo(p);
+
+  // Reviews
+  renderReviews(p.id);
+
+  // Wishlist state
+  updateWishlistBtn(p.id);
+
+  // Show tabs and related
+  document.getElementById('detailTabs').style.display = 'block';
+  renderRelated(p);
+  document.getElementById('relatedSection').style.display = 'block';
+}
+
+function changeQty(delta) {
+  selectedQty = Math.max(1, selectedQty + delta);
+  document.getElementById('qtyInput').value = selectedQty;
+}
+
+function addToCartWithQty(id) {
+  for (let i = 0; i < selectedQty; i++) addToCart(id);
+  if (selectedQty > 1) {
+    // addToCart calls showToast each time, so override last message
+  }
+}
+
+// Wishlist
+function toggleWishlist(id) {
+  const wish = JSON.parse(localStorage.getItem('pcstore_wishlist') || '[]');
+  const idx = wish.indexOf(id);
+  if (idx >= 0) { wish.splice(idx, 1); showToast('تمت الإزالة من المفضلة', 'info'); }
+  else { wish.push(id); showToast('✅ تمت الإضافة إلى المفضلة', 'success'); }
+  localStorage.setItem('pcstore_wishlist', JSON.stringify(wish));
+  updateWishlistBtn(id);
+}
+
+function updateWishlistBtn(id) {
+  const wish = JSON.parse(localStorage.getItem('pcstore_wishlist') || '[]');
+  const inWish = wish.includes(id);
+  const btn = document.getElementById('wishlistBtnMain');
+  if (btn) { btn.textContent = inWish ? '♥' : '♡'; btn.classList.toggle('active', inWish); }
+  const btn2 = document.getElementById('wishBtn');
+  if (btn2) btn2.textContent = inWish ? '♥ في المفضلة' : '♡ المفضلة';
+}
+
+// Share
+function shareProduct() {
+  if (navigator.share) {
+    navigator.share({ title: currentProduct?.name, url: window.location.href });
+  } else {
+    navigator.clipboard.writeText(window.location.href).then(() => showToast('✅ تم نسخ رابط المنتج', 'success'));
+  }
+}
+
+// Tabs
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// Reviews
+function selectReviewStar(val) {
+  reviewStarVal = val;
+  document.querySelectorAll('.review-star').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+  });
+}
+
+function submitReview() {
+  if (!reviewStarVal) { showToast('يرجى اختيار تقييم بالنجوم أولاً', 'error'); return; }
+  const text = document.getElementById('reviewText').value.trim();
+  const name = document.getElementById('reviewName').value.trim() || 'مستخدم مجهول';
+  if (!text) { showToast('يرجى كتابة نص التقييم', 'error'); return; }
+  const id = new URLSearchParams(location.search).get('id');
+  const reviews = JSON.parse(localStorage.getItem(`pcstore_reviews_${id}`) || '[]');
+  reviews.unshift({ name, text, rating: reviewStarVal, date: new Date().toLocaleDateString('ar-SA') });
+  localStorage.setItem(`pcstore_reviews_${id}`, JSON.stringify(reviews));
+  document.getElementById('reviewText').value = '';
+  document.getElementById('reviewName').value = '';
+  reviewStarVal = 0;
+  document.querySelectorAll('.review-star').forEach(s => s.classList.remove('active'));
+  rateProduct(id, reviews[0].rating);
+  renderReviews(id);
+  showToast('✅ شكراً! تم إضافة تقييمك بنجاح', 'success');
+}
+
+function renderReviews(id) {
+  const container = document.getElementById('reviewsList');
+  const reviews = JSON.parse(localStorage.getItem(`pcstore_reviews_${id}`) || '[]');
+  // Add sample reviews if none
+  const samples = [
+    { name:'أحمد محمد', text:'منتج رائع، يستحق السعر تماماً. الأداء فاق توقعاتي في كل المهام.', rating:5, date:'15/06/2026' },
+    { name:'خالد العمري', text:'جودة ممتازة وتوصيل سريع. سأشتري منكم مرة أخرى بكل تأكيد.', rating:4, date:'10/05/2026' },
+    { name:'سارة الأحمد', text:'المنتج جيد لكن يحتاج وقت أطول حتى يصل. الجودة ممتازة.', rating:4, date:'02/04/2026' },
+  ];
+  const all = [...reviews, ...samples];
+  container.innerHTML = all.map(r => `
+    <div class="review-card">
+      <div class="review-header">
+        <div>
+          <span class="reviewer-name">${r.name}</span>
+          <div>${renderStars(r.rating)}</div>
+        </div>
+        <span class="review-date">${r.date}</span>
+      </div>
+      <p class="review-text">${r.text}</p>
+    </div>`).join('');
+}
+
+// Related Products
+function renderRelated(p) {
+  const related = getByCategory(p.category)
+    .filter(r => r.id !== p.id)
+    .sort((a,b) => b.reviews - a.reviews)
+    .slice(0, 4);
+  document.getElementById('relatedGrid').innerHTML = related.map(buildProductCard).join('');
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  const id = new URLSearchParams(location.search).get('id');
+  if (!id) { document.getElementById('productLayout').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted)">❌ لم يتم تحديد منتج. <a href="../index.html">عودة للرئيسية</a></div>'; return; }
+  const product = getProductById(id);
+  if (!product) { document.getElementById('productLayout').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted)">❌ المنتج غير موجود. <a href="../index.html">عودة للرئيسية</a></div>'; return; }
+  renderProduct(product);
+});
+</script>
+</body>
+</html>
+

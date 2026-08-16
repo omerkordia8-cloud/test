@@ -1,0 +1,437 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>لوحة التحكم — TechZone Admin</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/base.css"/>
+  <link rel="stylesheet" href="../css/admin.css"/>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script></head>
+<body>
+<!-- Auth guard handled in JS -->
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="../index.html" class="logo"><div class="logo-icon">⚡</div>Tech<span>Zone</span> <span style="font-size:0.7rem;background:var(--accent);color:white;padding:2px 8px;border-radius:4px;margin-right:8px">Admin</span></a>
+    <div class="nav-actions">
+      <button class="nav-btn" id="themeToggle">🌙</button>
+      <a href="../index.html" class="nav-btn" title="المتجر" style="text-decoration:none">🏪</a>
+      <button class="nav-btn" onclick="adminLogout()" title="خروج" style="color:var(--danger)">🚪</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper" style="display:flex">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-nav-section">
+      <div class="admin-nav-label">الرئيسية</div>
+      <div class="admin-nav-link active" onclick="showSection('dashboard',this)">📊 لوحة التحكم</div>
+    </div>
+    <div class="admin-nav-section">
+      <div class="admin-nav-label">المنتجات</div>
+      <div class="admin-nav-link" onclick="showSection('products',this)">📦 إدارة المنتجات</div>
+      <div class="admin-nav-link" onclick="showSection('add',this)">➕ إضافة منتج</div>
+    </div>
+    <div class="admin-nav-section">
+      <div class="admin-nav-label">الطلبات</div>
+      <div class="admin-nav-link" onclick="showSection('orders',this)">🛒 الطلبات</div>
+    </div>
+    <div class="admin-nav-section">
+      <div class="admin-nav-label">الحساب</div>
+      <div class="admin-nav-link" onclick="adminLogout()" style="color:var(--danger)">🚪 تسجيل الخروج</div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+
+    <!-- Dashboard Section -->
+    <div id="section-dashboard">
+      <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:8px">مرحباً، Admin 👋</h1>
+      <p style="color:var(--text-muted);margin-bottom:28px;font-size:0.9rem">لوحة تحكم TechZone — إدارة المنتجات والطلبات</p>
+
+      <div class="admin-stats" id="statsCards"></div>
+
+      <!-- Quick Category Overview -->
+      <div class="admin-section-title" style="margin-top:32px">📊 نظرة عامة على المنتجات</div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>الفئة</th>
+              <th>عدد المنتجات</th>
+              <th>أقل سعر</th>
+              <th>أعلى سعر</th>
+              <th>متوسط التقييم</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="categoryOverview"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Products Section -->
+    <div id="section-products" style="display:none">
+      <div class="admin-section-title">
+        📦 إدارة المنتجات
+        <button class="btn btn-primary btn-sm" onclick="showSection('add', document.querySelector('.admin-nav-link:nth-child(3)'))">➕ إضافة منتج</button>
+      </div>
+      <div class="admin-search">
+        <input type="text" class="admin-search-input" id="productSearch" placeholder="🔍 ابحث عن منتج..." oninput="filterAdminProducts()"/>
+        <select class="admin-cat-filter" id="adminCatFilter" onchange="filterAdminProducts()">
+          <option value="">جميع الفئات</option>
+          <option value="processors">المعالجات</option>
+          <option value="gpus">كروت الشاشة</option>
+          <option value="cases">الكيسات</option>
+          <option value="ram">الرامات</option>
+          <option value="coolers">المبردات</option>
+          <option value="accessories">الإكسسوارات</option>
+        </select>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>المنتج</th>
+              <th>الفئة</th>
+              <th>السعر</th>
+              <th>التقييم</th>
+              <th>الحالة</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Add/Edit Product Section -->
+    <div id="section-add" style="display:none">
+      <div class="admin-section-title" id="formTitle">➕ إضافة منتج جديد</div>
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-xl);padding:32px;box-shadow:var(--shadow-card)">
+        <form id="productForm" onsubmit="saveProduct(event)">
+          <div class="modal-form-grid">
+            <div class="form-group">
+              <label class="form-label">الاسم *</label>
+              <input type="text" id="f_name" class="form-input" required placeholder="اسم المنتج"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">الماركة *</label>
+              <input type="text" id="f_brand" class="form-input" required placeholder="Intel / AMD / ..."/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">الفئة *</label>
+              <select id="f_category" class="form-input" required>
+                <option value="">-- اختر فئة --</option>
+                <option value="processors">المعالجات</option>
+                <option value="gpus">كروت الشاشة</option>
+                <option value="cases">الكيسات</option>
+                <option value="ram">الرامات</option>
+                <option value="coolers">المبردات</option>
+                <option value="accessories">الإكسسوارات</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">السعر (ر.س) *</label>
+              <input type="number" id="f_price" class="form-input" required min="1" placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">التقييم (1-5)</label>
+              <input type="number" id="f_rating" class="form-input" min="1" max="5" step="0.1" value="4.0"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">عدد المراجعات</label>
+              <input type="number" id="f_reviews" class="form-input" min="0" value="0"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">الأيقونة (Emoji)</label>
+              <input type="text" id="f_icon" class="form-input" placeholder="مثال: 🔵 أو 💾"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">الشارة</label>
+              <select id="f_badge" class="form-input">
+                <option value="">بدون شارة</option>
+                <option value="bestseller">الأكثر مبيعاً</option>
+                <option value="popular">شائع</option>
+                <option value="new">جديد</option>
+                <option value="premium">برميوم</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">الوصف</label>
+              <textarea id="f_description" class="review-textarea" placeholder="وصف تفصيلي للمنتج..." style="min-height:80px"></textarea>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">المواصفات (JSON) — مثال: {"الأنوية":"8","السرعة":"5GHz"}</label>
+              <textarea id="f_specs" class="review-textarea" placeholder='{"المواصفة 1":"القيمة 1", "المواصفة 2":"القيمة 2"}' style="min-height:80px;font-family:monospace;font-size:0.85rem;direction:ltr"></textarea>
+              <div class="form-error" id="specsError">صيغة JSON غير صحيحة</div>
+            </div>
+          </div>
+          <input type="hidden" id="f_id"/>
+          <div style="display:flex;gap:12px;margin-top:8px">
+            <button type="submit" class="btn btn-primary">💾 حفظ المنتج</button>
+            <button type="button" class="btn btn-outline" onclick="resetForm()">✕ إلغاء</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div id="section-orders" style="display:none">
+      <div class="admin-section-title">🛒 الطلبات المسجلة</div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>رقم الطلب</th><th>التاريخ</th><th>المبلغ</th><th>عدد المنتجات</th><th>الحالة</th></tr>
+          </thead>
+          <tbody id="ordersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="../js/data.js"></script>
+<script src="../js/main.js"></script>
+<script>
+// Auth guard
+function checkAuth() {
+  const auth = JSON.parse(localStorage.getItem('pcstore_admin_auth') || 'null');
+  if (!auth || Date.now() - auth.time > 3600000) {
+    window.location.href = 'admin-login.html';
+  }
+}
+checkAuth();
+
+function adminLogout() {
+  localStorage.removeItem('pcstore_admin_auth');
+  window.location.href = 'admin-login.html';
+}
+
+// ===== Section Navigation =====
+function showSection(name, clickedEl) {
+  document.querySelectorAll('[id^="section-"]').forEach(s => s.style.display = 'none');
+  document.getElementById('section-' + name).style.display = 'block';
+  document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
+  if (clickedEl) clickedEl.classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'products')  renderProductsTable();
+  if (name === 'orders')    renderOrders();
+}
+
+// ===== Dashboard =====
+function renderDashboard() {
+  const all = getAllProducts();
+  const orders = JSON.parse(localStorage.getItem('pcstore_orders') || '[]');
+  const cart = getCart();
+
+  const stats = [
+    { icon:'📦', label:'إجمالي المنتجات', value: all.length, cls:'purple' },
+    { icon:'🛒', label:'إجمالي الطلبات', value: orders.length, cls:'green' },
+    { icon:'💰', label:'إجمالي المبيعات', value: orders.reduce((s,o)=>s+o.total,0).toLocaleString('ar-SA') + ' ر.س', cls:'orange' },
+    { icon:'🛍️', label:'في السلة الآن', value: getCartCount(), cls:'blue' },
+  ];
+
+  document.getElementById('statsCards').innerHTML = stats.map(s => `
+    <div class="stat-card">
+      <div class="stat-icon ${s.cls}">${s.icon}</div>
+      <div><div class="stat-value">${s.value}</div><div class="stat-label">${s.label}</div></div>
+    </div>`).join('');
+
+  const catNames = { processors:'المعالجات', gpus:'كروت الشاشة', cases:'الكيسات', ram:'الرامات', coolers:'المبردات', accessories:'الإكسسوارات' };
+  const catPages = { processors:'processors.html', gpus:'gpus.html', cases:'cases.html', ram:'ram.html', coolers:'coolers.html', accessories:'accessories.html' };
+
+  document.getElementById('categoryOverview').innerHTML = Object.keys(PRODUCTS_DB).map(cat => {
+    const prods = PRODUCTS_DB[cat];
+    if (!prods.length) return '';
+    const prices = prods.map(p=>p.price);
+    const avgRating = (prods.reduce((s,p)=>s+p.rating,0)/prods.length).toFixed(1);
+    return `<tr>
+      <td><strong>${catNames[cat]||cat}</strong></td>
+      <td><span class="badge badge-accent">${prods.length}</span></td>
+      <td>${Math.min(...prices).toLocaleString('ar-SA')} ر.س</td>
+      <td>${Math.max(...prices).toLocaleString('ar-SA')} ر.س</td>
+      <td>${renderStars(parseFloat(avgRating))} ${avgRating}</td>
+      <td><a href="${catPages[cat]||'#'}" class="btn btn-outline btn-sm">عرض</a></td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== Products Table =====
+let adminFilteredProds = [];
+
+function renderProductsTable() {
+  adminFilteredProds = getAllProducts();
+  renderAdminTable(adminFilteredProds);
+}
+
+function filterAdminProducts() {
+  const q = document.getElementById('productSearch').value.toLowerCase();
+  const cat = document.getElementById('adminCatFilter').value;
+  adminFilteredProds = getAllProducts().filter(p =>
+    (!q || p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)) &&
+    (!cat || p.category === cat)
+  );
+  renderAdminTable(adminFilteredProds);
+}
+
+const badgeLabels = { bestseller:'🏆 الأكثر مبيعاً', popular:'🔥 شائع', new:'✨ جديد', premium:'💎 برميوم', '':'—' };
+const catLabels   = { processors:'المعالجات', gpus:'كروت الشاشة', cases:'الكيسات', ram:'الرامات', coolers:'المبردات', accessories:'الإكسسوارات' };
+
+function renderAdminTable(prods) {
+  const tbody = document.getElementById('productsTableBody');
+  if (!prods.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:30px">لا توجد منتجات مطابقة</td></tr>'; return; }
+  tbody.innerHTML = prods.map(p => `
+    <tr>
+      <td>
+        <div class="table-product-cell">
+          <div class="table-product-icon">${p.icon||'📦'}</div>
+          <div><div class="table-product-name">${p.name}</div><div class="table-product-id">${p.id}</div></div>
+        </div>
+      </td>
+      <td>${catLabels[p.category]||p.category}</td>
+      <td style="font-weight:700;color:var(--accent)">${p.price.toLocaleString('ar-SA')} ر.س</td>
+      <td>${renderStars(p.rating)} ${p.rating}</td>
+      <td>${p.badge ? `<span class="badge badge-new">${badgeLabels[p.badge]||p.badge}</span>` : '<span style="color:var(--text-muted)">—</span>'}</td>
+      <td>
+        <div class="table-actions">
+          <button class="table-btn edit" onclick="editProduct('${p.id}')" title="تعديل">✏️</button>
+          <button class="table-btn delete" onclick="deleteProduct('${p.id}')" title="حذف">🗑️</button>
+          <a href="product.html?id=${p.id}" class="table-btn" target="_blank" title="عرض">👁️</a>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+// ===== Add/Edit Product =====
+let editingId = null;
+
+function editProduct(id) {
+  const p = getProductById(id);
+  if (!p) return;
+  editingId = id;
+  document.getElementById('formTitle').textContent = '✏️ تعديل المنتج: ' + p.name;
+  document.getElementById('f_id').value = id;
+  document.getElementById('f_name').value = p.name;
+  document.getElementById('f_brand').value = p.brand;
+  document.getElementById('f_category').value = p.category;
+  document.getElementById('f_price').value = p.price;
+  document.getElementById('f_rating').value = p.rating;
+  document.getElementById('f_reviews').value = p.reviews;
+  document.getElementById('f_icon').value = p.icon || '';
+  document.getElementById('f_badge').value = p.badge || '';
+  document.getElementById('f_description').value = p.description || '';
+  document.getElementById('f_specs').value = p.specs ? JSON.stringify(p.specs, null, 2) : '';
+  showSection('add', null);
+}
+
+function saveProduct(e) {
+  e.preventDefault();
+  const specsRaw = document.getElementById('f_specs').value.trim();
+  let specs = {};
+  if (specsRaw) {
+    try { specs = JSON.parse(specsRaw); }
+    catch { document.getElementById('specsError').classList.add('visible'); return; }
+  }
+  document.getElementById('specsError').classList.remove('visible');
+
+  const cat = document.getElementById('f_category').value;
+  const id = editingId || `${cat}-custom-${Date.now()}`;
+
+  const product = {
+    id, category: cat,
+    name: document.getElementById('f_name').value.trim(),
+    brand: document.getElementById('f_brand').value.trim(),
+    price: parseFloat(document.getElementById('f_price').value),
+    rating: parseFloat(document.getElementById('f_rating').value) || 4.0,
+    reviews: parseInt(document.getElementById('f_reviews').value) || 0,
+    icon: document.getElementById('f_icon').value.trim() || '📦',
+    badge: document.getElementById('f_badge').value,
+    description: document.getElementById('f_description').value.trim(),
+    specs,
+  };
+
+  // Save to localStorage
+  const custom = JSON.parse(localStorage.getItem('pcstore_custom_products') || '{}');
+  if (!custom[cat]) custom[cat] = [];
+  const idx = custom[cat].findIndex(p => p.id === id);
+  if (idx >= 0) custom[cat][idx] = product; else custom[cat].push(product);
+  localStorage.setItem('pcstore_custom_products', JSON.stringify(custom));
+
+  // Update in-memory DB
+  if (!PRODUCTS_DB[cat]) PRODUCTS_DB[cat] = [];
+  const dbIdx = PRODUCTS_DB[cat].findIndex(p => p.id === id);
+  if (dbIdx >= 0) PRODUCTS_DB[cat][dbIdx] = product; else PRODUCTS_DB[cat].push(product);
+
+  showToast(`✅ تم ${editingId ? 'تعديل' : 'إضافة'} المنتج بنجاح`, 'success');
+  resetForm();
+  showSection('products', document.querySelectorAll('.admin-nav-link')[1]);
+}
+
+function resetForm() {
+  editingId = null;
+  document.getElementById('productForm').reset();
+  document.getElementById('f_id').value = '';
+  document.getElementById('formTitle').textContent = '➕ إضافة منتج جديد';
+}
+
+function deleteProduct(id) {
+  const p = getProductById(id);
+  if (!p) return;
+  if (!confirm(`هل أنت متأكد من حذف "${p.name}"؟`)) return;
+
+  // Add to deleted list
+  const deleted = JSON.parse(localStorage.getItem('pcstore_deleted_ids') || '[]');
+  if (!deleted.includes(id)) deleted.push(id);
+  localStorage.setItem('pcstore_deleted_ids', JSON.stringify(deleted));
+
+  // Remove from memory
+  PRODUCTS_DB[p.category] = PRODUCTS_DB[p.category].filter(pr => pr.id !== id);
+  showToast(`🗑️ تم حذف "${p.name}"`, 'info');
+  renderProductsTable();
+}
+
+// ===== Orders =====
+function renderOrders() {
+  const orders = JSON.parse(localStorage.getItem('pcstore_orders') || '[]');
+  const tbody = document.getElementById('ordersTableBody');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px">لا توجد طلبات مسجلة بعد</td></tr>';
+    return;
+  }
+  const statuses = ['✅ مؤكد', '⏳ قيد المعالجة', '🚀 تم الشحن', '✅ مكتمل'];
+  tbody.innerHTML = orders.map((o,i) => `
+    <tr>
+      <td><strong>${o.id}</strong></td>
+      <td>${o.date}</td>
+      <td style="font-weight:700;color:var(--accent)">${o.total.toLocaleString('ar-SA')} ر.س</td>
+      <td>${o.items.reduce((s,it)=>s+it.qty,0)} منتج</td>
+      <td><span class="badge badge-success">${statuses[i % statuses.length]}</span></td>
+    </tr>`).join('');
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  renderDashboard();
+});
+</script>
+</body>
+</html>
+

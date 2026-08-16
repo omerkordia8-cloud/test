@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>سلة التسوق — TechZone</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/base.css"/>
+  <link rel="stylesheet" href="../css/cart.css"/>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script></head>
+<body>
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="../index.html" class="logo"><div class="logo-icon">⚡</div>Tech<span>Zone</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html" class="nav-link">🏠 الرئيسية</a></li>
+      <li><a href="processors.html" class="nav-link">🔵 المعالجات</a></li>
+      <li><a href="gpus.html" class="nav-link">🟢 كروت الشاشة</a></li>
+      <li><a href="cases.html" class="nav-link">🖥️ الكيسات</a></li>
+      <li><a href="ram.html" class="nav-link">🟡 الرامات</a></li>
+      <li><a href="coolers.html" class="nav-link">💧 المبردات</a></li>
+      <li><a href="accessories.html" class="nav-link">💾 الإكسسوارات</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-btn" id="themeToggle">🌙</button>
+      <a href="cart.html" class="nav-btn" style="text-decoration:none">🛒<span class="cart-count" id="cartCount" style="display:none">0</span></a>
+      <a href="admin-login.html" class="nav-btn" style="text-decoration:none">⚙️</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="../index.html" class="mobile-nav-link">🏠 الرئيسية</a>
+  <a href="processors.html" class="mobile-nav-link">🔵 المعالجات</a>
+  <a href="gpus.html" class="mobile-nav-link">🟢 كروت الشاشة</a>
+  <a href="cases.html" class="mobile-nav-link">🖥️ الكيسات</a>
+  <a href="ram.html" class="mobile-nav-link">🟡 الرامات</a>
+  <a href="coolers.html" class="mobile-nav-link">💧 المبردات</a>
+  <a href="accessories.html" class="mobile-nav-link">💾 الإكسسوارات</a>
+  <a href="cart.html" class="mobile-nav-link active">🛒 السلة</a>
+</div>
+
+<div class="page-wrapper">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb" style="padding-top:28px">
+      <a href="../index.html">الرئيسية</a><span class="sep">›</span><span>سلة التسوق</span>
+    </div>
+
+    <!-- Cart Layout -->
+    <div class="cart-layout" id="cartLayout">
+      <!-- Items will be rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Checkout Success Modal -->
+<div class="checkout-modal" id="checkoutModal" style="display:none">
+  <div class="checkout-modal-box">
+    <span class="modal-icon">🎉</span>
+    <h2 class="modal-title">تم تأكيد الطلب!</h2>
+    <p class="modal-text">شكراً لتسوقك من TechZone. سيتم التواصل معك خلال 24 ساعة لتأكيد الطلب وتفاصيل التوصيل.</p>
+    <div style="background:var(--bg-sidebar);border-radius:var(--radius-md);padding:16px;margin-bottom:20px;font-size:0.9rem;text-align:right">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="color:var(--text-muted)">رقم الطلب</span>
+        <strong id="orderNumber">#TZ-000000</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span style="color:var(--text-muted)">المبلغ الإجمالي</span>
+        <strong id="orderTotal" style="color:var(--accent)"></strong>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="closeModal()">🏠 العودة للتسوق</button>
+  </div>
+</div>
+
+<footer class="footer"><div class="container"><div class="footer-bottom"><span class="footer-copy">© 2026 TechZone. جميع الحقوق محفوظة.</span></div></div></footer>
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="../js/data.js"></script>
+<script src="../js/main.js"></script>
+<script>
+const CAT_NAMES = { processors:'المعالجات', gpus:'كروت الشاشة', cases:'الكيسات', ram:'الرامات', coolers:'المبردات', accessories:'الإكسسوارات' };
+const CAT_PAGES = { processors:'processors.html', gpus:'gpus.html', cases:'cases.html', ram:'ram.html', coolers:'coolers.html', accessories:'accessories.html' };
+
+let appliedCoupon = null;
+const COUPONS = { 'TECHZONE10': 0.10, 'SAVE20': 0.20, 'VIP15': 0.15 };
+
+function renderCart() {
+  const cart = getCart();
+  const layout = document.getElementById('cartLayout');
+
+  if (!cart.length) {
+    layout.innerHTML = `
+      <div class="cart-empty">
+        <span class="cart-empty-icon">🛒</span>
+        <h2>السلة فارغة</h2>
+        <p>لم تضف أي منتجات إلى سلة التسوق بعد</p>
+        <a href="../index.html" class="btn btn-primary">🏠 تصفح المنتجات</a>
+      </div>`;
+    return;
+  }
+
+  const subtotal = getCartTotal();
+  const discount = appliedCoupon ? subtotal * COUPONS[appliedCoupon] : 0;
+  const shipping = subtotal > 2000 ? 0 : 49;
+  const vat = (subtotal - discount + shipping) * 0.15;
+  const total = subtotal - discount + shipping + vat;
+
+  const itemsHtml = cart.map(item => {
+    const product = getProductById(item.id);
+    const itemTotal = (item.price * item.qty).toLocaleString('ar-SA');
+    return `
+    <div class="cart-item" id="item-${item.id}">
+      <div class="cart-item-img">${item.icon || '📦'}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-cat">${CAT_NAMES[item.category] || item.category}</div>
+        <div class="cart-item-controls">
+          <div class="qty-selector">
+            <button class="qty-btn" onclick="updateItemQty('${item.id}', ${item.qty - 1})">−</button>
+            <input class="qty-input" type="number" value="${item.qty}" min="1"
+              onchange="updateItemQty('${item.id}', parseInt(this.value)||1)" style="width:48px;height:38px"/>
+            <button class="qty-btn" onclick="updateItemQty('${item.id}', ${item.qty + 1})">+</button>
+          </div>
+          <span style="font-size:0.82rem;color:var(--text-muted)">${item.price.toLocaleString('ar-SA')} ر.س / قطعة</span>
+        </div>
+      </div>
+      <div class="cart-item-actions">
+        <div class="cart-item-price">${itemTotal} ر.س</div>
+        <button class="remove-btn" onclick="removeItem('${item.id}')" title="حذف">🗑️</button>
+        <a href="product.html?id=${item.id}" style="font-size:0.8rem;color:var(--accent)">تفاصيل</a>
+      </div>
+    </div>`;
+  }).join('');
+
+  layout.innerHTML = `
+    <!-- Cart Items -->
+    <div>
+      <div class="cart-header-row">
+        <h1 class="cart-title">🛒 سلة التسوق <span class="cart-count-badge">${getCartCount()} منتج</span></h1>
+        <button class="btn btn-outline btn-sm" onclick="clearCart()" style="border-color:var(--danger);color:var(--danger)">🗑️ إفراغ السلة</button>
+      </div>
+      ${itemsHtml}
+      <!-- Continue Shopping -->
+      <a href="../index.html" class="btn btn-outline" style="margin-top:8px">← متابعة التسوق</a>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="order-summary">
+      <div class="summary-title">📋 ملخص الطلب</div>
+
+      <!-- Coupon -->
+      <div class="coupon-row">
+        <input type="text" class="coupon-input" id="couponInput" placeholder="كود الخصم..." />
+        <button class="coupon-btn" onclick="applyCoupon()">تطبيق</button>
+      </div>
+      ${appliedCoupon ? `<div style="font-size:0.82rem;color:var(--success);margin-bottom:12px">✅ كود "${appliedCoupon}" مطبّق (${Math.round(COUPONS[appliedCoupon]*100)}% خصم)</div>` : ''}
+
+      <div class="summary-row">
+        <span class="label">المجموع الفرعي</span>
+        <span class="value">${subtotal.toLocaleString('ar-SA')} ر.س</span>
+      </div>
+      ${discount > 0 ? `
+      <div class="summary-row">
+        <span class="label" style="color:var(--success)">✂️ خصم الكوبون</span>
+        <span class="value" style="color:var(--success)">− ${discount.toLocaleString('ar-SA')} ر.س</span>
+      </div>` : ''}
+      <div class="summary-row">
+        <span class="label">🚀 الشحن</span>
+        <span class="value" style="color:${shipping===0?'var(--success)':'inherit'}">${shipping === 0 ? 'مجاني' : shipping + ' ر.س'}</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">💰 ضريبة القيمة المضافة (15%)</span>
+        <span class="value">${Math.round(vat).toLocaleString('ar-SA')} ر.س</span>
+      </div>
+      ${shipping > 0 ? `<div style="font-size:0.78rem;color:var(--success);text-align:center;margin-top:-8px;margin-bottom:10px">💡 أضف منتجات بـ ${(2000-subtotal).toLocaleString('ar-SA')} ر.س للحصول على شحن مجاني!</div>` : ''}
+      <div class="summary-divider"></div>
+      <div class="summary-total">
+        <span class="label">الإجمالي</span>
+        <span class="value">${Math.round(total).toLocaleString('ar-SA')} ر.س</span>
+      </div>
+
+      <button class="checkout-btn" onclick="checkout()">💳 إتمام الطلب</button>
+      <button class="continue-btn" onclick="window.location='../index.html'">← متابعة التسوق</button>
+
+      <!-- Trust Badges -->
+      <div class="trust-badges">
+        <div class="trust-badge"><span class="trust-badge-icon">🔒</span>دفع آمن</div>
+        <div class="trust-badge"><span class="trust-badge-icon">🛡️</span>ضمان أصلي</div>
+        <div class="trust-badge"><span class="trust-badge-icon">↩️</span>إرجاع 14 يوم</div>
+        <div class="trust-badge"><span class="trust-badge-icon">🚀</span>شحن سريع</div>
+      </div>
+    </div>`;
+}
+
+function updateItemQty(id, qty) {
+  if (qty < 1) { removeItem(id); return; }
+  updateQty(id, qty);
+  renderCart();
+}
+
+function removeItem(id) {
+  removeFromCart(id);
+  showToast('تم حذف المنتج من السلة', 'info');
+  renderCart();
+}
+
+function clearCart() {
+  if (!confirm('هل أنت متأكد من إفراغ السلة؟')) return;
+  saveCart([]);
+  renderCart();
+  showToast('تم إفراغ السلة', 'info');
+}
+
+function applyCoupon() {
+  const code = document.getElementById('couponInput')?.value.trim().toUpperCase();
+  if (!code) return;
+  if (COUPONS[code]) {
+    appliedCoupon = code;
+    showToast(`✅ تم تطبيق كود الخصم ${Math.round(COUPONS[code]*100)}%`, 'success');
+    renderCart();
+  } else {
+    showToast('❌ كود الخصم غير صحيح', 'error');
+  }
+}
+
+function checkout() {
+  const total = getCartTotal();
+  const discount = appliedCoupon ? total * COUPONS[appliedCoupon] : 0;
+  const shipping = total > 2000 ? 0 : 49;
+  const vat = (total - discount + shipping) * 0.15;
+  const finalTotal = Math.round(total - discount + shipping + vat);
+
+  // Generate order number
+  const orderNum = '#TZ-' + Date.now().toString().slice(-6);
+  document.getElementById('orderNumber').textContent = orderNum;
+  document.getElementById('orderTotal').textContent = finalTotal.toLocaleString('ar-SA') + ' ر.س';
+
+  // Save order
+  const orders = JSON.parse(localStorage.getItem('pcstore_orders') || '[]');
+  orders.unshift({ id: orderNum, date: new Date().toLocaleDateString('ar-SA'), total: finalTotal, items: getCart() });
+  localStorage.setItem('pcstore_orders', JSON.stringify(orders.slice(0, 50)));
+
+  // Clear cart
+  saveCart([]);
+  appliedCoupon = null;
+
+  document.getElementById('checkoutModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('checkoutModal').style.display = 'none';
+  window.location.href = '../index.html';
+}
+
+document.addEventListener('DOMContentLoaded', renderCart);
+</script>
+</body>
+</html>
+

@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>الإكسسوارات — TechZone</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/base.css"/>
+  <link rel="stylesheet" href="../css/products.css"/>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <script>
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script></head>
+<body>
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="../index.html" class="logo"><div class="logo-icon">⚡</div>Tech<span>Zone</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html" class="nav-link">🏠 الرئيسية</a></li>
+      <li><a href="processors.html" class="nav-link">🔵 المعالجات</a></li>
+      <li><a href="gpus.html" class="nav-link">🟢 كروت الشاشة</a></li>
+      <li><a href="cases.html" class="nav-link">🖥️ الكيسات</a></li>
+      <li><a href="ram.html" class="nav-link">🟡 الرامات</a></li>
+      <li><a href="coolers.html" class="nav-link">💧 المبردات</a></li>
+      <li><a href="accessories.html" class="nav-link active">💾 الإكسسوارات</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-btn" id="themeToggle">🌙</button>
+      <a href="cart.html" class="nav-btn" style="text-decoration:none">🛒<span class="cart-count" id="cartCount" style="display:none">0</span></a>
+      <a href="admin-login.html" class="nav-btn" style="text-decoration:none">⚙️</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="../index.html" class="mobile-nav-link">🏠 الرئيسية</a>
+  <a href="processors.html" class="mobile-nav-link">🔵 المعالجات</a>
+  <a href="gpus.html" class="mobile-nav-link">🟢 كروت الشاشة</a>
+  <a href="cases.html" class="mobile-nav-link">🖥️ الكيسات</a>
+  <a href="ram.html" class="mobile-nav-link">🟡 الرامات</a>
+  <a href="coolers.html" class="mobile-nav-link">💧 المبردات</a>
+  <a href="accessories.html" class="mobile-nav-link">💾 الإكسسوارات</a>
+  <a href="cart.html" class="mobile-nav-link">🛒 السلة</a>
+</div>
+
+<div class="page-wrapper">
+  <div class="cat-page-hero hero-accessories">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">الرئيسية</a><span class="sep">›</span><span>الإكسسوارات</span></div>
+      <span class="cat-hero-icon">💾</span>
+      <h1 class="page-hero-title">الإكسسوارات والملحقات</h1>
+      <p class="page-hero-subtitle">SSD NVMe & SATA — HDD — مزودات الطاقة PSU — معاجين التبريد — المراوح</p>
+      <div class="cat-hero-stats">
+        <div class="cat-hero-stat"><div class="cat-hero-stat-value">19</div><div class="cat-hero-stat-label">منتج متوفر</div></div>
+        <div class="cat-hero-stat"><div class="cat-hero-stat-value">5</div><div class="cat-hero-stat-label">فئات فرعية</div></div>
+        <div class="cat-hero-stat"><div class="cat-hero-stat-value">500W→1500W</div><div class="cat-hero-stat-label">مزودات الطاقة</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-bottom:80px">
+    <!-- Sub-category tabs -->
+    <div class="subcat-tabs" id="subcatTabs">
+      <button class="subcat-tab active" onclick="filterSubcat('all',this)">🔷 الكل</button>
+      <button class="subcat-tab" onclick="filterSubcat('SSD NVMe',this)">💾 SSD NVMe</button>
+      <button class="subcat-tab" onclick="filterSubcat('SSD SATA',this)">📀 SSD SATA</button>
+      <button class="subcat-tab" onclick="filterSubcat('HDD',this)">🖴 HDD</button>
+      <button class="subcat-tab" onclick="filterSubcat('PSU',this)">⚡ مزودات الطاقة</button>
+      <button class="subcat-tab" onclick="filterSubcat('Thermal Paste',this)">🧴 معجون التبريد</button>
+      <button class="subcat-tab" onclick="filterSubcat('Case Fan',this)">🌬️ المراوح</button>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <input type="text" id="searchInput" placeholder="🔍 ابحث عن منتج..." style="flex:1;min-width:200px;padding:10px 16px;border:1px solid var(--border-color);border-radius:var(--radius-md);background:var(--bg-card);color:var(--text-primary);font-family:inherit;font-size:0.92rem"/>
+    </div>
+    <div class="active-filters" id="activeFilters"></div>
+    <div class="sort-bar">
+      <span class="results-count" id="resultsCount"></span>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <select id="sortSelect" class="sort-select">
+          <option value="popular">الأكثر شعبية</option>
+          <option value="price-asc">السعر: من الأقل</option>
+          <option value="price-desc">السعر: من الأعلى</option>
+          <option value="rating">الأعلى تقييماً</option>
+          <option value="newest">الأحدث</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="grid">⊞</button>
+          <button class="view-btn" data-view="list">≡</button>
+        </div>
+      </div>
+    </div>
+    <button class="filters-toggle-btn" onclick="toggleFilters()">⚙️ الفلاتر</button>
+    <div class="products-layout">
+      <aside class="filters-sidebar" id="filtersSidebar"></aside>
+      <div>
+        <div class="products-grid" id="productsGrid"></div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer"><div class="container"><div class="footer-bottom"><span class="footer-copy">© 2026 TechZone. جميع الحقوق محفوظة.</span></div></div></footer>
+<div id="toastContainer" class="toast-container"></div>
+<script src="../js/data.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/products.js"></script>
+<script>
+  function goToProduct(id) { window.location.href = `product.html?id=${id}`; }
+
+  let activeSub = 'all';
+  function filterSubcat(sub, btn) {
+    activeSub = sub;
+    document.querySelectorAll('.subcat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // Override currentProducts based on subcat
+    const all = getByCategory('accessories');
+    currentProducts = sub === 'all' ? all : all.filter(p => p.subCategory === sub);
+    applyFiltersAndRender();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initProductsPage('accessories', [
+      { field:'brand',       label:'الماركة',       icon:'🏷️' },
+      { field:'subCategory', label:'الفئة الفرعية', icon:'📂' },
+      { field:'capacity',    label:'السعة',          icon:'📊' },
+      { field:'efficiency',  label:'الكفاءة',        icon:'⚡' },
+      { field:'modular',     label:'النوع',           icon:'🔌' },
+    ]);
+  });
+</script>
+</body>
+</html>
+

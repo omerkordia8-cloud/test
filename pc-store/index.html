@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechZone — متجر قطع الكمبيوتر</title>
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <script>
+    // Apply theme before render to prevent flash
+    (function(){
+      const t = localStorage.getItem('pcstore_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+
+<!-- ===== Navbar ===== -->
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">⚡</div>
+      Tech<span>Zone</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link active">🏠 الرئيسية</a></li>
+      <li><a href="pages/processors.html" class="nav-link">🔵 المعالجات</a></li>
+      <li><a href="pages/gpus.html" class="nav-link">🟢 كروت الشاشة</a></li>
+      <li><a href="pages/cases.html" class="nav-link">🖥️ الكيسات</a></li>
+      <li><a href="pages/ram.html" class="nav-link">🟡 الرامات</a></li>
+      <li><a href="pages/coolers.html" class="nav-link">💧 المبردات</a></li>
+      <li><a href="pages/accessories.html" class="nav-link">💾 الإكسسوارات</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button class="nav-btn" id="themeToggle" title="تبديل الثيم">🌙</button>
+      <a href="pages/cart.html" class="nav-btn" title="السلة" style="text-decoration:none">
+        🛒
+        <span class="cart-count" id="cartCount" style="display:none">0</span>
+      </a>
+      <a href="pages/admin-login.html" class="nav-btn" title="لوحة التحكم" style="text-decoration:none">⚙️</a>
+      <button class="hamburger" id="hamburger" aria-label="قائمة">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html" class="mobile-nav-link">🏠 الرئيسية</a>
+  <a href="pages/processors.html" class="mobile-nav-link">🔵 المعالجات</a>
+  <a href="pages/gpus.html" class="mobile-nav-link">🟢 كروت الشاشة</a>
+  <a href="pages/cases.html" class="mobile-nav-link">🖥️ الكيسات</a>
+  <a href="pages/ram.html" class="mobile-nav-link">🟡 الرامات</a>
+  <a href="pages/coolers.html" class="mobile-nav-link">💧 المبردات</a>
+  <a href="pages/accessories.html" class="mobile-nav-link">💾 الإكسسوارات</a>
+  <a href="pages/cart.html" class="mobile-nav-link">🛒 السلة</a>
+</div>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+  <div class="hero-visual">
+    <span class="floating-icon">🔵</span>
+    <span class="floating-icon">🟢</span>
+    <span class="floating-icon">💾</span>
+    <span class="floating-icon">🖥️</span>
+    <span class="floating-icon">⚡</span>
+  </div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        أفضل أسعار قطع الكمبيوتر في السعودية
+      </div>
+      <h1 class="hero-title">
+        ابنِ جهازك <span class="accent">المثالي</span><br/>
+        من <span class="accent-2">أفضل القطع</span>
+      </h1>
+      <p class="hero-subtitle">
+        أكبر تشكيلة من معالجات Intel وAMD، كروت الشاشة NVIDIA وRadeon، الرامات، الكيسات، والمبردات. كل ما تحتاجه في مكان واحد.
+      </p>
+      <div class="hero-actions">
+        <a href="pages/processors.html" class="hero-btn-primary">🛒 تسوق الآن</a>
+        <a href="#categories" class="hero-btn-secondary">📦 تصفح الأقسام</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-value">+87</span>
+          <span class="hero-stat-label">منتج متوفر</span>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">6</span>
+          <span class="hero-stat-label">فئات رئيسية</span>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">15+</span>
+          <span class="hero-stat-label">ماركة عالمية</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Categories ===== -->
+<section class="categories-section" id="categories">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">الأقسام</span>
+      <h2 class="section-title">تصفح حسب <span>الفئة</span></h2>
+      <p class="section-subtitle">اختر القسم المناسب وابحث عن القطع التي تحتاجها</p>
+    </div>
+    <div class="categories-grid">
+      <a href="pages/processors.html" class="category-card">
+        <span class="cat-icon">🔵</span>
+        <span class="cat-name">المعالجات</span>
+        <span class="cat-count">Intel & AMD — 20 معالج</span>
+      </a>
+      <a href="pages/gpus.html" class="category-card">
+        <span class="cat-icon">🟢</span>
+        <span class="cat-name">كروت الشاشة</span>
+        <span class="cat-count">GTX / RTX / Radeon — 17 كرت</span>
+      </a>
+      <a href="pages/cases.html" class="category-card">
+        <span class="cat-icon">🖥️</span>
+        <span class="cat-name">الكيسات</span>
+        <span class="cat-count">Mini / Mid / Full Tower — 10 كيسة</span>
+      </a>
+      <a href="pages/ram.html" class="category-card">
+        <span class="cat-icon">🟡</span>
+        <span class="cat-name">الرامات</span>
+        <span class="cat-count">DDR4 & DDR5 — 11 منتج</span>
+      </a>
+      <a href="pages/coolers.html" class="category-card">
+        <span class="cat-icon">💧</span>
+        <span class="cat-name">المبردات</span>
+        <span class="cat-count">هوائي & مائي — 10 مبرد</span>
+      </a>
+      <a href="pages/accessories.html" class="category-card">
+        <span class="cat-icon">💾</span>
+        <span class="cat-name">الإكسسوارات</span>
+        <span class="cat-count">SSD / HDD / PSU — 19 منتج</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Brands ===== -->
+<section class="brands-section">
+  <div class="container">
+    <div class="section-header" style="margin-bottom:30px">
+      <span class="section-tag">الماركات</span>
+      <h2 class="section-title">أشهر <span>الماركات</span> العالمية</h2>
+    </div>
+    <div class="brands-track">
+      <div class="brand-item">Intel</div>
+      <div class="brand-item">AMD</div>
+      <div class="brand-item">NVIDIA</div>
+      <div class="brand-item">Corsair</div>
+      <div class="brand-item">NZXT</div>
+      <div class="brand-item">Noctua</div>
+      <div class="brand-item">G.Skill</div>
+      <div class="brand-item">Samsung</div>
+      <div class="brand-item">Lian Li</div>
+      <div class="brand-item">Seasonic</div>
+      <div class="brand-item">Kingston</div>
+      <div class="brand-item">WD</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Featured Products ===== -->
+<section class="featured-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">مميزة</span>
+      <h2 class="section-title">المنتجات <span>الأكثر مبيعاً</span></h2>
+      <p class="section-subtitle">اختيارات محررينا من أفضل القطع بأفضل الأسعار</p>
+    </div>
+    <div class="products-grid" id="featuredGrid">
+      <!-- JS Rendered -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== Features ===== -->
+<section class="features-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">لماذا TechZone</span>
+      <h2 class="section-title">التميز في <span>كل تفصيلة</span></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🚀</div>
+        <h3 class="feature-title">توصيل سريع</h3>
+        <p class="feature-desc">توصيل لجميع مناطق المملكة خلال 2-4 أيام عمل مع تتبع الطلب أون لاين.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3 class="feature-title">ضمان أصلي</h3>
+        <p class="feature-desc">جميع المنتجات بضمان المصنع الأصلي من سنة إلى 10 سنوات حسب المنتج.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3 class="feature-title">أفضل الأسعار</h3>
+        <p class="feature-desc">نضمن لك أفضل سعر في السوق. وجدت أرخص؟ سنوافق السعر أو نسترد المبلغ.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔧</div>
+        <h3 class="feature-title">دعم تقني</h3>
+        <p class="feature-desc">فريق متخصص لمساعدتك في اختيار القطع المتوافقة وبناء جهازك المثالي.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section">
+  <div class="container cta-content">
+    <h2 class="cta-title">جاهز تبني جهازك الأقوى؟</h2>
+    <p class="cta-subtitle">ابدأ الآن بتصفح أحدث المعالجات وكروت الشاشة</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a href="pages/processors.html" class="hero-btn-primary">🔵 تصفح المعالجات</a>
+      <a href="pages/gpus.html" class="hero-btn-secondary">🟢 كروت الشاشة</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="footer-logo">⚡ Tech<span style="color:var(--accent)">Zone</span></span>
+        <p class="footer-desc">متجرك الأول لقطع الكمبيوتر في السعودية. نوفر أحدث المنتجات من أفضل الماركات العالمية بأفضل الأسعار.</p>
+        <div class="social-links">
+          <a href="#" class="social-link">𝕏</a>
+          <a href="#" class="social-link">📘</a>
+          <a href="#" class="social-link">📸</a>
+          <a href="#" class="social-link">▶️</a>
+        </div>
+      </div>
+      <div>
+        <h4 class="footer-col-title">الأقسام</h4>
+        <ul class="footer-links">
+          <li><a href="pages/processors.html" class="footer-link">المعالجات</a></li>
+          <li><a href="pages/gpus.html" class="footer-link">كروت الشاشة</a></li>
+          <li><a href="pages/cases.html" class="footer-link">الكيسات</a></li>
+          <li><a href="pages/ram.html" class="footer-link">الرامات</a></li>
+          <li><a href="pages/coolers.html" class="footer-link">المبردات</a></li>
+          <li><a href="pages/accessories.html" class="footer-link">الإكسسوارات</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-col-title">الدعم</h4>
+        <ul class="footer-links">
+          <li><a href="#" class="footer-link">الأسئلة الشائعة</a></li>
+          <li><a href="#" class="footer-link">سياسة الإرجاع</a></li>
+          <li><a href="#" class="footer-link">تتبع الطلب</a></li>
+          <li><a href="#" class="footer-link">تواصل معنا</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-col-title">الحساب</h4>
+        <ul class="footer-links">
+          <li><a href="pages/cart.html" class="footer-link">السلة</a></li>
+          <li><a href="pages/admin-login.html" class="footer-link">لوحة التحكم</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 TechZone. جميع الحقوق محفوظة.</span>
+      <div class="footer-bottom-links">
+        <a href="#" class="footer-bottom-link">سياسة الخصوصية</a>
+        <a href="#" class="footer-bottom-link">الشروط والأحكام</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  // Render featured products (bestsellers from each category)
+  document.addEventListener('DOMContentLoaded', () => {
+    const featured = getAllProducts()
+      .filter(p => p.badge === 'bestseller' || p.badge === 'popular')
+      .sort((a,b) => b.reviews - a.reviews)
+      .slice(0, 8);
+    const grid = document.getElementById('featuredGrid');
+    if (grid) grid.innerHTML = featured.map(buildProductCard).join('');
+  });
+</script>
+</body>
+</html>
